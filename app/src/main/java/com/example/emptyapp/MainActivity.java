@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
             if(TextUtils.isEmpty(txtPass.getText().toString()))
             {
                 txtPass.setError("Please input code!");
-                //Toast.makeText(MainActivity.this, "Please input code!", Toast.LENGTH_SHORT).show();
             }
             else
             {

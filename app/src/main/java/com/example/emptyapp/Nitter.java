@@ -1,6 +1,7 @@
 package com.example.emptyapp;
 
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,6 +20,8 @@ import android.widget.FrameLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.emptyapp.Services.AudioService;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,13 +32,15 @@ import java.util.Objects;
 
 public class Nitter extends AppCompatActivity {
 
-
+    public static final String CHAN_ID = "chan";
     WebView webView;
     WebSettings webSettings;
     StringBuilder adservers;
     String loddnormallist = "1";
-    String ua = "Mozilla/5.0 (Linux; Android 7.0; SM-T827R4 Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.116 Safari/537.36";
+    String ua = "Mozilla/5.0 (Linux; Android 7.1.1; SM-T555 Build/NMF26X; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.96 Safari/537.36";
     public static String url = "";
+    Intent intent;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +52,11 @@ public class Nitter extends AppCompatActivity {
 
         readAdServers();
         webView = findViewById(R.id.webview);
+
+        
+        intent = new Intent(this, AudioService.class);
+
+        startForegroundService(intent);
 
         webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -76,6 +86,8 @@ public class Nitter extends AppCompatActivity {
 
         webView.setWebViewClient(new MyWebViewClient());
         webView.loadUrl(url);
+
+
     }
 
 
@@ -236,9 +248,15 @@ public class Nitter extends AppCompatActivity {
         }
         else
         {
-
             webView.clearHistory();
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        stopService(intent);
+        super.onDestroy();
     }
 }
