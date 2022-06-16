@@ -55,4 +55,5 @@ dependencies {
     implementation 'com.github.RachitShah02:Webview-Video-Fullscreen:1.0.2'
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation "androidx.webkit:webkit:1.4.0"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 }

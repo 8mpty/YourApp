@@ -1,18 +1,16 @@
 package com.example.emptyapp;
 
 
-import android.content.Intent;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -20,10 +18,7 @@ import android.widget.FrameLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.emptyapp.Services.AudioService;
-
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,15 +27,12 @@ import java.util.Objects;
 
 public class Nitter extends AppCompatActivity {
 
-    public static final String CHAN_ID = "chan";
-    WebView webView;
+    private WebView webView;
     WebSettings webSettings;
     StringBuilder adservers;
-    String loddnormallist = "1";
-    String ua = "Mozilla/5.0 (Linux; Android 7.1.1; SM-T555 Build/NMF26X; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.96 Safari/537.36";
+    String loddnormallist = "0";
+    String ua = "Mozilla/5.0 (Linux; Android 10; Google Pixel 4 Build/QD1A.190821.014.C2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/78.0.3904.108 Mobile Safari/537.36";
     public static String url = "";
-    Intent intent;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,13 +42,9 @@ public class Nitter extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_nitter);
 
-        readAdServers();
+
+        //readAdServers();
         webView = findViewById(R.id.webview);
-
-        
-        intent = new Intent(this, AudioService.class);
-
-        startForegroundService(intent);
 
         webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -82,15 +70,52 @@ public class Nitter extends AppCompatActivity {
         webView.setForceDarkAllowed(true);
         webView.setBackgroundColor(0x00000000);
 
-        webView.setWebChromeClient(new MyChrome());
-
+        //webView.setWebChromeClient(new MyChrome());
         webView.setWebViewClient(new MyWebViewClient());
+
         webView.loadUrl(url);
-
-
     }
 
+//    @Override
+//    protected void onStop() {
+//
+//        super.onStop();
+//        Log.e("VIEWIS","DESTROYED");
+//
+//    }
 
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    public class MyWebView extends WebView {
+
+        public MyWebView(Context context) {
+            super(context);
+        }
+
+        public MyWebView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public MyWebView(Context context, AttributeSet attrs, int defStyleAttr) {
+            super(context, attrs, defStyleAttr);
+        }
+
+        @Override
+        protected void onWindowVisibilityChanged(int visibility) {
+            if (visibility == GONE)
+            {
+                Log.e("VIEWIS","GONE");
+            }
+            else
+                Log.e("VIEWIS","HERE");
+
+        }
+
+    }
 
     private void readAdServers()
     {
@@ -116,72 +141,52 @@ public class Nitter extends AppCompatActivity {
                         adservers.append(":::::" + line);
                         adservers.append("\n");
                     }
-                    if (loddnormallist.equals("2"))
-                    {
-                        adservers.append("https://" + line);
-                        adservers.append("\n");
-                    }
                 }
             }
             catch (IOException e)
             {
                 e.printStackTrace();
             }
+
+
         }
     }
 
     private class MyWebViewClient extends WebViewClient
     {
-        @Override
-        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request)
-        {
-            ByteArrayInputStream EMPTY = new ByteArrayInputStream("".getBytes());
-            String adds = String.valueOf(adservers);
 
-            if(adds.contains(":::::" + request.getUrl().getHost()))
-            {
-                Log.d("ADDDDDDS IN FILE","ADDDDDDS");
-                return new WebResourceResponse("text/plain", "utf-8", EMPTY);
-            }
-            else if (adds.contains(request.getUrl().getHost()))
-            {
-                Log.d("ADDDDDDS IN FILE","ADDDDDDS");
 
-                return new WebResourceResponse("text/plain", "utf-8", EMPTY);
-            }
+//        @Override
+//        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request)
+//        {
+//            ByteArrayInputStream EMPTY = new ByteArrayInputStream("".getBytes());
+//            String adds = String.valueOf(adservers);
+//
+//            Log.d("ADDDDS CAUGHT",request.getUrl().getHost());
+//
+//            if(adds.contains(request.getUrl().getHost()))
+//            {
+//                Log.d("ADDDDS IN FILE AND BLOCKED",request.getUrl().getHost());
+//                return new WebResourceResponse("text/plain", "utf-8", EMPTY);
+//            }
+//            return super.shouldInterceptRequest(view, request);
+//        }
 
-            if(adds.contains("https://" + request.getUrl().getHost()))
-            {
-                Log.d("ADDDDDDS IN FILE","ADDDDDDS");
-                return new WebResourceResponse("text/plain", "utf-8", EMPTY);
-            }
 
-            if(adds.contains("youtubei/v1/log_event" + request.getUrl().getHost()) || adds.contains("play.google.com" + request.getUrl().getHost()) || adds.contains("api/stats/atr" + request.getUrl().getHost()) || adds.contains("doubleclick.net" + request.getUrl().getHost()))
-            {
-                Log.d("ADDDDDDS IN FILE","ADDDDDDS");
-                return new WebResourceResponse("text/plain", "utf-8", EMPTY);
-            }
 
-            if(adds.contains(request.getUrl().getHost()))
-            {
-                Log.d("ADDDDDDS IN FILE","ADDDDDDS");
-                return new WebResourceResponse("text/plain", "utf-8", EMPTY);
-            }
-            return super.shouldInterceptRequest(view, request);
-        }
 
         @Override
         public void onPageFinished(WebView view, String url)
         {
-            CookieManager.getInstance().flush();
             super.onPageFinished(view, url);
             webView.loadUrl("javascript:(function() { " + "document.getElementsByClassName('sign-in-link style-scope ytmusic-nav-bar')[0].style.display='none';})()");
-
         }
     }
 
+
     private class MyChrome extends WebChromeClient
     {
+
         private View mCustomView;
         private WebChromeClient.CustomViewCallback mCustomViewCallback;
         protected FrameLayout mFullscreenContainer;
@@ -225,7 +230,10 @@ public class Nitter extends AppCompatActivity {
             getWindow().getDecorView().setSystemUiVisibility(3846 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
 
+
+
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -251,12 +259,5 @@ public class Nitter extends AppCompatActivity {
             webView.clearHistory();
             super.onBackPressed();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-
-        stopService(intent);
-        super.onDestroy();
     }
 }
