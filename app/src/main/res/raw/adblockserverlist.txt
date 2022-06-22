@@ -1131,6 +1131,7 @@ bannerconnect.com
 bannerconnect.net
 bannergrabber.internet.gr
 bannerimage.com
+bannerlandia.com.ar
 bannermall.com
 bannermanager.bnr.bg
 bannermarkt.nl
@@ -1313,7 +1314,6 @@ cashengines.com
 cashfiesta.com
 cashpartner.com
 cashstaging.me
-casinopays.com
 casinorewards.com
 casinotraffic.com
 causecherry.com
@@ -1346,6 +1346,7 @@ cheerfulrange.com
 cherriescare.com
 chewcoat.com
 chickensstation.com
+childlikecrowd.com
 chinsnakes.com
 chitika.net
 citrusad.net
@@ -1619,6 +1620,7 @@ doubleverify.com
 doubtfulrainstorm.com
 downloadr.xyz
 dpbolvw.net
+dpgawov.com
 dpu.samsungelectronics.com
 dq95d35.com
 drabsize.com
@@ -1649,6 +1651,7 @@ eclkspbn.com
 economicpizzas.com
 ecoupons.com
 edaa.eu
+edgexads.com
 educationdynamics.com
 effectivemeasure.com
 effectivemeasure.net
@@ -1663,6 +1666,7 @@ elitedollars.com
 elitetoplist.com
 em1.yoursantander.co.uk
 email-clk.adguard.com
+email-links.crowdfireapp.com
 email-opn.adguard.com
 email.m1.bktrksmail.com
 emaillinks.soundiiz.com
@@ -1840,7 +1844,6 @@ fwcdn1.com
 fwcdn2.com
 fxstyle.net
 ga.clearbit.com
-ga87z2o.com
 gadsbee.com
 galaxien.com
 game-advertising-online.com
@@ -2001,6 +2004,7 @@ idtargeting.com
 ientrymail.com
 iesnare.com
 ifa.tube8live.com
+ihogaetw.com
 ilbanner.com
 ilead.itrack.it
 illfatedsnail.com
@@ -2518,7 +2522,6 @@ openad.travelnow.com
 openads.friendfinder.com
 openads.org
 openadsnetwork.com
-opentag-stats.qubit.com
 openx.angelsgroup.org.uk
 openx.cairo360.com
 openx.kgmedia.eu
@@ -3159,6 +3162,7 @@ swordfishdc.com
 swordgoose.com
 t.appsflyer.com
 t.bawafx.com
+t.carta.com
 t.co
 t.eloqua.com
 t.en25.com
@@ -3326,7 +3330,6 @@ tracking.5-47737-bi.co.uk
 tracking.emilyclarkconsulting.com
 tracking.epicgames.com
 tracking.exipure.com
-tracking.gajmp.com
 tracking.hyros.com
 tracking.ibxlink.com
 tracking.internetstores.de
@@ -3642,10 +3645,3 @@ zqtk.net
 zukxd6fkxqn.com
 zy16eoat1w.com
 zzhc.vnet.cn
-animixplay.papayads.net/clnt/animixplay/v7
-https://prebid.smilewanted.com
-https://animixplay.papayads.net
-https://animixplay.papayads.net/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js
-cdn.ampproject.org
-animixplay.to
-https://www.youtube.com

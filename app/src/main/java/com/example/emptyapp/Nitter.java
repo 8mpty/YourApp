@@ -1,56 +1,83 @@
 package com.example.emptyapp;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+
+import org.adblockplus.libadblockplus.android.webview.AdblockWebView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Objects;
 
 
 public class Nitter extends AppCompatActivity {
 
-    private WebView webView;
+    //WebView webView;
+    AdblockWebView webView;
     WebSettings webSettings;
-    StringBuilder adservers;
-    String loddnormallist = "0";
-    String ua = "Mozilla/5.0 (Linux; Android 10; Google Pixel 4 Build/QD1A.190821.014.C2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/78.0.3904.108 Mobile Safari/537.36";
+    public static StringBuilder adservers;
+    public static String loddnormallist = "0";
+    private final String ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36"; // Desktop User Agent
     public static String url = "";
+
+    public static boolean isAudio;
+
+    LockScreenReceiver lockScreenReceiver;
+
+    Toolbar toolbar;
+    boolean videoEnabled = false;
+    boolean isFinised;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Objects.requireNonNull(getSupportActionBar()).hide();
         getWindow().setStatusBarColor(getColor(R.color.black));
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_nitter);
+        toolbar = findViewById(R.id.toolbar);
 
 
-        //readAdServers();
+        readAdServers();
+        Adblocker.init(this);
+
+        lockScreenReceiver = new LockScreenReceiver();
+        IntentFilter lockFilter = new IntentFilter();
+        lockFilter.addAction(Intent.ACTION_SCREEN_ON);
+        lockFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        lockFilter.addAction(Intent.ACTION_USER_PRESENT);
+        registerReceiver(lockScreenReceiver, lockFilter);
+
+
         webView = findViewById(R.id.webview);
-
         webSettings = webView.getSettings();
+
         webSettings.setJavaScriptEnabled(true);
-        webView.getSettings().setBuiltInZoomControls(true);
-        webView.getSettings().setSupportZoom(true);
-        webView.getSettings().setDisplayZoomControls(false);
+
         webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         webView.setScrollbarFadingEnabled(true);
         webView.setLongClickable(true);
@@ -60,66 +87,179 @@ public class Nitter extends AppCompatActivity {
         webView.clearHistory();
         webView.clearSslPreferences();
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setAppCacheEnabled(true);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
-        webView.getSettings().setMediaPlaybackRequiresUserGesture(true);
-        webView.getSettings().setUserAgentString(ua);
-        webSettings.setForceDark(webSettings.FORCE_DARK_ON);
-        webView.setForceDarkAllowed(true);
         webView.setBackgroundColor(0x00000000);
 
-        //webView.setWebChromeClient(new MyChrome());
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setSupportZoom(true);
+        webSettings.setDisplayZoomControls(false);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setAppCacheEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
+        webSettings.setMediaPlaybackRequiresUserGesture(false);
+        webSettings.setUserAgentString(ua);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            webView.setForceDarkAllowed(true);
+            webSettings.setForceDark(webSettings.FORCE_DARK_ON);
+        }
+
+        webView.setWebChromeClient(new MyChrome());
         webView.setWebViewClient(new MyWebViewClient());
 
         webView.loadUrl(url);
+        webView.setOnScrollChangeListener(new scroll());
     }
 
-//    @Override
-//    protected void onStop() {
-//
-//        super.onStop();
-//        Log.e("VIEWIS","DESTROYED");
-//
-//    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu,menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+
+        switch (item.getItemId())
+        {
+            case R.id.chk_vid:
+                if(item.isChecked())
+                {
+                    item.setChecked(false);
+                    webView.reload();
+                    Toast.makeText(this, "VIDEO DISABLED", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    item.setChecked(true);
+                    webView.reload();
+                    Toast.makeText(this, "VIDEO ENABLED", Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+            case R.id.chk_ua:
+                if(item.isChecked())
+                {
+                    item.setChecked(false);
+                }
+                else
+                {
+                    item.setChecked(true);
+                    Toast.makeText(this, "UA CHANGE", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case R.id.ua_android:
+                if(item.isChecked())
+                {
+                    item.setChecked(false);
+                }
+                else
+                {
+                    item.setChecked(true);
+                }
+            case R.id.ua_browser:
+                if(item.isChecked())
+                {
+                    item.setChecked(false);
+                }
+                else
+                {
+                    item.setChecked(true);
+                }
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        return true;
+    }
+
+    public void show (View view)
+    {
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) webView.getLayoutParams();
+        toolbar.setVisibility(View.VISIBLE);
+    }
+
+    public void hide (View view)
+    {
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) webView.getLayoutParams();
+        toolbar.setVisibility(View.GONE);
+    }
+
+    private class scroll implements View.OnScrollChangeListener {
+        @Override
+        public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+
+            int move = webView.getScrollY();
+            if(move > 2)
+            {
+                hide(toolbar);
+            }
+            else if (move <= 1)
+            {
+                show(toolbar);
+            }
+        }
+    }
+
+
+    public class LockScreenReceiver extends  BroadcastReceiver
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            if (intent != null && intent.getAction() != null)
+            {
+                if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
+                {
+                    // Screen is on but not unlocked (if any locking mechanism present)
+                }
+                else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
+                {
+                    webView.onResume();
+                }
+                else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT))
+                {
+                    // Screen is unlocked
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        Log.e("onMETHOD","RESUME");
+        webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
+        webView.onResume();
+        super.onResume();
+    }
 
 
     @Override
     protected void onPause() {
         super.onPause();
+        Log.e("onPAUSED","RUNNING");
+        webView.onResume();
     }
 
-    public class MyWebView extends WebView {
+    @Override
+    protected void onStop() {
+        Log.e("onMETHOD","STOPPED");
+        super.onStop();
+    }
 
-        public MyWebView(Context context) {
-            super(context);
-        }
-
-        public MyWebView(Context context, AttributeSet attrs) {
-            super(context, attrs);
-        }
-
-        public MyWebView(Context context, AttributeSet attrs, int defStyleAttr) {
-            super(context, attrs, defStyleAttr);
-        }
-
-        @Override
-        protected void onWindowVisibilityChanged(int visibility) {
-            if (visibility == GONE)
-            {
-                Log.e("VIEWIS","GONE");
-            }
-            else
-                Log.e("VIEWIS","HERE");
-
-        }
-
+    @Override
+    protected void onDestroy() {
+        Log.e("onMETHOD","DESTROYED");
+        super.onDestroy();
     }
 
     private void readAdServers()
     {
-        String line = "";
+        String line;
         adservers = new StringBuilder();
 
         InputStream is = this.getResources().openRawResource(R.raw.hosts);
@@ -147,54 +287,67 @@ public class Nitter extends AppCompatActivity {
             {
                 e.printStackTrace();
             }
-
-
         }
     }
 
     private class MyWebViewClient extends WebViewClient
     {
-
-
-//        @Override
-//        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request)
-//        {
-//            ByteArrayInputStream EMPTY = new ByteArrayInputStream("".getBytes());
-//            String adds = String.valueOf(adservers);
-//
-//            Log.d("ADDDDS CAUGHT",request.getUrl().getHost());
-//
-//            if(adds.contains(request.getUrl().getHost()))
-//            {
-//                Log.d("ADDDDS IN FILE AND BLOCKED",request.getUrl().getHost());
-//                return new WebResourceResponse("text/plain", "utf-8", EMPTY);
-//            }
-//            return super.shouldInterceptRequest(view, request);
-//        }
-
-
-
-
         @Override
         public void onPageFinished(WebView view, String url)
         {
             super.onPageFinished(view, url);
-            webView.loadUrl("javascript:(function() { " + "document.getElementsByClassName('sign-in-link style-scope ytmusic-nav-bar')[0].style.display='none';})()");
-        }
-    }
+            if(!videoEnabled)
+            {
 
+                webView.loadUrl("javascript:(function() { " +
+                        "document.getElementsByClassName('sign-in-link style-scope ytmusic-nav-bar')[0].style.display='none';" +
+                        "})()");
+
+                webView.loadUrl("javascript:(function() { " +
+                        "document.getElementById('main-panel').style.display='none';" +
+                        "document.getElementsByClassName('style-scope ytd-button-renderer')[0].style.display='none';" +
+                        "})()");
+                videoEnabled = false;
+            }
+            else
+            {
+                webView.loadUrl("javascript:(function() { " +
+                        "document.getElementsByClassName('sign-in-link style-scope ytmusic-nav-bar')[0].style.display='none';" +
+                        "})()");
+                videoEnabled = true;
+            }
+
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            toolbar.setOverflowIcon(ContextCompat.getDrawable(Nitter.this, R.drawable.ic_menu));
+        }
+//        @Override
+//        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request)
+//        {
+//            ByteArrayInputStream EMPTY = new ByteArrayInputStream("".getBytes());
+//            String ads = String.valueOf(adservers);
+//
+//            Log.d("ADDDDS CAUGHT",request.getUrl().getHost());
+//
+//            if(ads.contains(request.getUrl().getHost()))
+//            {
+//                Log.d("ADDDDS IN FILE AND BLOCKED",request.getUrl().getHost());
+//                return new WebResourceResponse("text/plain", "utf-8", EMPTY);
+//            }
+//
+//            return super.shouldInterceptRequest(view, request);
+//        }
+    }
 
     private class MyChrome extends WebChromeClient
     {
-
         private View mCustomView;
         private WebChromeClient.CustomViewCallback mCustomViewCallback;
-        protected FrameLayout mFullscreenContainer;
+        //protected FrameLayout mFullscreenContainer;
         private int mOriginalOrientation;
         private int mOriginalSystemUiVisibility;
 
         MyChrome() {}
-
 
         public Bitmap getDefaultVideoPoster()
         {
@@ -229,24 +382,20 @@ public class Nitter extends AppCompatActivity {
             ((FrameLayout)getWindow().getDecorView()).addView(this.mCustomView, new FrameLayout.LayoutParams(-1, -1));
             getWindow().getDecorView().setSystemUiVisibility(3846 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
-
-
-
     }
 
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        webView.saveState(outState);
-
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        webView.restoreState(savedInstanceState);
-    }
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        //webView.saveState(outState);
+//
+//    }
+//
+//    @Override
+//    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//        super.onRestoreInstanceState(savedInstanceState);
+//        //webView.restoreState(savedInstanceState);
+//    }
 
     @Override
     public void onBackPressed(){
@@ -257,6 +406,7 @@ public class Nitter extends AppCompatActivity {
         else
         {
             webView.clearHistory();
+            onStop();
             super.onBackPressed();
         }
     }

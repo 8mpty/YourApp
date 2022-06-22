@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group android:checkableBehavior="all">
+        <item
+            android:id="@+id/chk_vid"
+            android:title="Allow Video" />
+    </group>
+    <item
+        android:id="@+id/chk_ua"
+        android:title="Change User Agent"
+        app:showAsAction="never">
+
+        <menu>
+            <group android:checkableBehavior="all">
+                <item
+                    android:id="@+id/ua_android"
+                    android:title="Android"/>
+                <item
+                    android:id="@+id/ua_browser"
+                    android:title="Browser"/>
+            </group>
+
+        </menu>
+
+    </item>
+</menu>

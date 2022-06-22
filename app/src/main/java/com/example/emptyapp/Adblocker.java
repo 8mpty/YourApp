@@ -1,59 +1,71 @@
 package com.example.emptyapp;
 
 import android.content.Context;
-import android.net.Uri;
+import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.webkit.WebResourceResponse;
+
+import androidx.annotation.WorkerThread;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Adblocker {
 
-    private static Adblocker instance;
+    private static final int AD_HOSTS_FILE = R.raw.adblockserverlist;
+    private static final Set<String> AD_HOSTS = new HashSet<>();
 
-    private Context context;
-    private Set<String> hostsBlacklist;
-
-    private Adblocker(Context context) {
-        this.context = context;
-        hostsBlacklist = new HashSet<String>();
-
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(context.getAssets().open("host.txt")))) {
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                if (line.length() > 0) {
-                    hostsBlacklist.add(line);
+    public static void init(final Context context) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    loadFromAssets(context);
+                } catch (IOException ignored) {
                 }
+                return null;
             }
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        }.execute();
+    }
+
+    @WorkerThread
+    private static void loadFromAssets(Context context) throws IOException {
+        InputStream stream = context.getResources().openRawResource(AD_HOSTS_FILE);
+        BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
+        String line;
+        while ((line = buffer.readLine()) != null) {
+            AD_HOSTS.add(line);
         }
+        buffer.close();
+        stream.close();
     }
 
-    public static Adblocker getInstance(Context context) {
-        if (instance == null) {
-            instance = new Adblocker(context);
+    public static boolean isAd(String url) {
+        try {
+            URL netUrl = new URL(url);
+            return isAdHost(netUrl.getHost());
+        } catch (MalformedURLException ignored) {
         }
-        return instance;
+        return false;
     }
 
-    public boolean isAd(Uri uri) {
-        return isAdHost(uri.getHost());
-    }
-
-    private boolean isAdHost(String host) {
-        if (host == null || host.length() == 0) {
+    private static boolean isAdHost(String host) {
+        if (TextUtils.isEmpty(host)) {
             return false;
         }
-
-        int index = host.indexOf(".");
-        return index >= 0 && (hostsBlacklist.contains(host) || index + 1 < host.length() && isAdHost(host.substring(index + 1)));
+        int index = host.indexOf('.');
+        return index >= 0 && (AD_HOSTS.contains(host) ||
+                index + 1 < host.length() && isAdHost(host.substring(index + 1)));
     }
 
-    public WebResourceResponse createEmptyResource() {
+    public static WebResourceResponse createEmptyResource() {
         return new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream("".getBytes()));
     }
 }
