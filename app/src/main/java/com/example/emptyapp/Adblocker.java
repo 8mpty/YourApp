@@ -21,7 +21,7 @@ import java.util.Set;
 
 public class Adblocker {
 
-    private static final int AD_HOSTS_FILE = R.raw.adblockserverlist;
+    private static final int AD_HOSTS_FILE = R.raw.adss1;
     private static final Set<String> AD_HOSTS = new HashSet<>();
 
     public static void init(final Context context) {

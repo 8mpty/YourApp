@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -60,12 +61,11 @@ public class Nitter extends AppCompatActivity {
 
     RelativeLayout.LayoutParams lp;
 
-    Toolbar toolbar;
-    boolean videoEnabled;
+    private Toolbar toolbar;
+    private boolean videoEnabled;
 
     AlertDialog ad;
     CharSequence[] values = {"Phone (Android 9, Chrome)", "Desktop (Windows 10, Chrome)"};
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,16 +73,18 @@ public class Nitter extends AppCompatActivity {
         getWindow().setStatusBarColor(getColor(R.color.black));
         setContentView(R.layout.activity_nitter);
         toolbar = findViewById(R.id.toolbar);
-        
+
         readAdServers();
         Adblocker.init(this);
 
         lockScreenReceiver = new LockScreenReceiver();
         IntentFilter lockFilter = new IntentFilter();
         lockFilter.addAction(Intent.ACTION_SCREEN_OFF);
-//        lockFilter.addAction(Intent.ACTION_SCREEN_ON);
-//        lockFilter.addAction(Intent.ACTION_USER_PRESENT);
         registerReceiver(lockScreenReceiver, lockFilter);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.ic_menu));
 
         webStuff();
     }
@@ -93,6 +95,20 @@ public class Nitter extends AppCompatActivity {
         inflater.inflate(R.menu.menu,menu);
 
         return true;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        if(toolbar.getVisibility() == View.VISIBLE)
+        {
+            toolbar.setVisibility(View.GONE);
+        }
+        else
+        {
+            toolbar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -138,35 +154,34 @@ public class Nitter extends AppCompatActivity {
 
     public void UaCustomDialog()
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(Nitter.this);
-        builder.setTitle("Change User Agent");
-        builder.setSingleChoiceItems(values, -1, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int item)
-            {
-                switch (item)
-                {
-                    case 0:
-                        Toast.makeText(Nitter.this, "UA CHANGE Android", Toast.LENGTH_SHORT).show();
-                        ua = "Mozilla/5.0 (Linux; Android 9; J8110 Build/55.0.A.0.552; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/71.0.3578.99 Mobile Safari/537.36";
-                        webSettings.setUserAgentString(ua);
-                        webView.reload();
-                        break;
-                    case 1:
-                        Toast.makeText(Nitter.this, "UA CHANGE Desktop", Toast.LENGTH_SHORT).show();
-                        ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36";
-                        webSettings.setUserAgentString(ua);
-                        webView.reload();
-                        break;
-                }
-                ad.dismiss();
-            }
-        });
+        AlertDialog.Builder builder = new AlertDialog.Builder(Nitter.this)
+                .setTitle("Change User Agent")
+                .setSingleChoiceItems(values, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int item) {
+                        switch (item)
+                        {
+                            case 0:
+                                Toast.makeText(Nitter.this, "UA CHANGE Android", Toast.LENGTH_SHORT).show();
+                                ua = "Mozilla/5.0 (Linux; Android 9; J8110 Build/55.0.A.0.552; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/71.0.3578.99 Mobile Safari/537.36";
+                                webSettings.setUserAgentString(ua);
+                                webView.reload();
+                                break;
+                            case 1:
+                                Toast.makeText(Nitter.this, "UA CHANGE Desktop", Toast.LENGTH_SHORT).show();
+                                ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36";
+                                webSettings.setUserAgentString(ua);
+                                webView.reload();
+                                break;
+                        }
+                        ad.dismiss();
+                    }
+                });
         ad = builder.create();
         ad.show();
     }
 
-    private class scroll implements View.OnScrollChangeListener {
+    private class Scroll implements View.OnScrollChangeListener {
         @Override
         public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
 
@@ -244,7 +259,7 @@ public class Nitter extends AppCompatActivity {
         webView.setWebViewClient(new MyWebViewClient());
 
         webView.loadUrl(url);
-        webView.setOnScrollChangeListener(new scroll());
+        webView.setOnScrollChangeListener(new Scroll());
     }
 
     @Override
@@ -335,9 +350,6 @@ public class Nitter extends AppCompatActivity {
                 videoEnabled = true;
             }
 
-            setSupportActionBar(toolbar);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-            toolbar.setOverflowIcon(ContextCompat.getDrawable(Nitter.this, R.drawable.ic_menu));
         }
 //        @Override
 //        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request)
@@ -350,9 +362,8 @@ public class Nitter extends AppCompatActivity {
 //            if(ads.contains(request.getUrl().getHost()))
 //            {
 //                Log.d("ADDDDS IN FILE AND BLOCKED",request.getUrl().getHost());
-//                return new WebResourceResponse("text/plain", "utf-8", EMPTY);
+//                return Adblocker.createEmptyResource();
 //            }
-//
 //            return super.shouldInterceptRequest(view, request);
 //        }
 

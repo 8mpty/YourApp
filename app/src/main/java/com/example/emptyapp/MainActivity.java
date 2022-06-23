@@ -1,15 +1,13 @@
 package com.example.emptyapp;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -18,6 +16,8 @@ public class MainActivity extends AppCompatActivity {
     EditText txtPass;
     Button btnSub;
 
+
+    ScrollView sv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,19 +52,17 @@ public class MainActivity extends AppCompatActivity {
         Intent nitter = new Intent(this, Nitter.class);
 
         txtPass.setText("");
-        //closeKeyboard();
 
         if (num == 1111)
         {
             Nitter.url = "https://www.youtube.com/";
-            //Nitter.ua = "Mozilla/5.0 (Linux; Android 7.1.1; SM-T555 Build/NMF26X; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.96 Safari/537.36";
             startActivity(nitter);
             Nitter.isAudio = false;
 
         }
         else if (num == 2222)
         {
-            Nitter.url = "https://music.youtube.com";
+            Nitter.url = "https://beatbump.ml/home/";
             startActivity(nitter);
             Nitter.isAudio = true;
         }
@@ -88,19 +86,14 @@ public class MainActivity extends AppCompatActivity {
             Nitter.url = "https://canyoublockit.com";
             startActivity(nitter);
         }
+        else if (num == 6666)
+        {
+            Nitter.url = "https://kisskh.me/";
+            startActivity(nitter);
+        }
         else
         {
             txtPass.setError("Invalid Code");
         }
     }
-
-    private void closeKeyboard()
-    {
-        View view = this.getCurrentFocus();
-        if(view != null){
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
-
 }
