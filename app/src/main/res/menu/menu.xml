@@ -12,17 +12,17 @@
         android:title="Change User Agent"
         app:showAsAction="never">
 
-        <menu>
-            <group android:checkableBehavior="all">
-                <item
-                    android:id="@+id/ua_android"
-                    android:title="Android"/>
-                <item
-                    android:id="@+id/ua_browser"
-                    android:title="Browser"/>
-            </group>
+<!--        <menu>-->
+<!--            <group android:checkableBehavior="all">-->
+<!--                <item-->
+<!--                    android:id="@+id/ua_android"-->
+<!--                    android:title="Android"/>-->
+<!--                <item-->
+<!--                    android:id="@+id/ua_browser"-->
+<!--                    android:title="Browser"/>-->
+<!--            </group>-->
 
-        </menu>
+<!--        </menu>-->
 
     </item>
 </menu>

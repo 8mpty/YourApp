@@ -3,6 +3,7 @@ package com.example.emptyapp;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
@@ -16,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -24,9 +26,13 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+
+import com.monstertechno.adblocker.util.AdBlocker;
 
 import org.adblockplus.libadblockplus.android.webview.AdblockWebView;
 
@@ -34,6 +40,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Nitter extends AppCompatActivity {
@@ -43,16 +51,21 @@ public class Nitter extends AppCompatActivity {
     WebSettings webSettings;
     public static StringBuilder adservers;
     public static String loddnormallist = "0";
-    private final String ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36"; // Desktop User Agent
+    String ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36"; // Desktop User Agent
     public static String url = "";
 
     public static boolean isAudio;
 
     LockScreenReceiver lockScreenReceiver;
 
+    RelativeLayout.LayoutParams lp;
+
     Toolbar toolbar;
-    boolean videoEnabled = false;
-    boolean isFinised;
+    boolean videoEnabled;
+
+    AlertDialog ad;
+    CharSequence[] values = {"Phone (Android 9, Chrome)", "Desktop (Windows 10, Chrome)"};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,22 +73,144 @@ public class Nitter extends AppCompatActivity {
         getWindow().setStatusBarColor(getColor(R.color.black));
         setContentView(R.layout.activity_nitter);
         toolbar = findViewById(R.id.toolbar);
-
-
+        
         readAdServers();
         Adblocker.init(this);
 
         lockScreenReceiver = new LockScreenReceiver();
         IntentFilter lockFilter = new IntentFilter();
-        lockFilter.addAction(Intent.ACTION_SCREEN_ON);
         lockFilter.addAction(Intent.ACTION_SCREEN_OFF);
-        lockFilter.addAction(Intent.ACTION_USER_PRESENT);
+//        lockFilter.addAction(Intent.ACTION_SCREEN_ON);
+//        lockFilter.addAction(Intent.ACTION_USER_PRESENT);
         registerReceiver(lockScreenReceiver, lockFilter);
 
+        webStuff();
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu,menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        switch (item.getItemId())
+        {
+            case R.id.chk_vid:
+                if(item.isChecked())
+                {
+                    item.setChecked(false);
+                    videoEnabled = false;
+                    webView.reload();
+                    Toast.makeText(this, "VIDEO DISABLED", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    item.setChecked(true);
+                    videoEnabled = true;
+                    webView.reload();
+                    Toast.makeText(this, "VIDEO ENABLED", Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+            case R.id.chk_ua:
+                if(item.isChecked())
+                {
+                    item.setChecked(false);
+                    UaCustomDialog();
+                }
+                else
+                {
+                    item.setChecked(true);
+                    UaCustomDialog();
+                    Toast.makeText(this, "UA CHANGE", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        return true;
+    }
+
+    public void UaCustomDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(Nitter.this);
+        builder.setTitle("Change User Agent");
+        builder.setSingleChoiceItems(values, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item)
+            {
+                switch (item)
+                {
+                    case 0:
+                        Toast.makeText(Nitter.this, "UA CHANGE Android", Toast.LENGTH_SHORT).show();
+                        ua = "Mozilla/5.0 (Linux; Android 9; J8110 Build/55.0.A.0.552; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/71.0.3578.99 Mobile Safari/537.36";
+                        webSettings.setUserAgentString(ua);
+                        webView.reload();
+                        break;
+                    case 1:
+                        Toast.makeText(Nitter.this, "UA CHANGE Desktop", Toast.LENGTH_SHORT).show();
+                        ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36";
+                        webSettings.setUserAgentString(ua);
+                        webView.reload();
+                        break;
+                }
+                ad.dismiss();
+            }
+        });
+        ad = builder.create();
+        ad.show();
+    }
+
+    private class scroll implements View.OnScrollChangeListener {
+        @Override
+        public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+
+            int move = webView.getScrollY();
+            if(move > 2)
+            {
+                toolbar.setVisibility(View.GONE);
+            }
+            else if (move <= 1)
+            {
+                toolbar.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+
+    public class LockScreenReceiver extends  BroadcastReceiver
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            if (intent != null && intent.getAction() != null)
+            {
+
+                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
+                {
+                    webView.onResume();
+                }
+//                else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT))
+//                {
+//                    // Screen is unlocked
+//                }
+//                else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
+//                {
+//                    // Screen is on but not unlocked (if any locking mechanism present)
+//                }
+            }
+        }
+    }
+
+    private void webStuff()
+    {
         webView = findViewById(R.id.webview);
         webSettings = webView.getSettings();
-
         webSettings.setJavaScriptEnabled(true);
 
         webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
@@ -110,123 +245,6 @@ public class Nitter extends AppCompatActivity {
 
         webView.loadUrl(url);
         webView.setOnScrollChangeListener(new scroll());
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu,menu);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-
-        switch (item.getItemId())
-        {
-            case R.id.chk_vid:
-                if(item.isChecked())
-                {
-                    item.setChecked(false);
-                    webView.reload();
-                    Toast.makeText(this, "VIDEO DISABLED", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
-                    item.setChecked(true);
-                    webView.reload();
-                    Toast.makeText(this, "VIDEO ENABLED", Toast.LENGTH_SHORT).show();
-                }
-                break;
-
-            case R.id.chk_ua:
-                if(item.isChecked())
-                {
-                    item.setChecked(false);
-                }
-                else
-                {
-                    item.setChecked(true);
-                    Toast.makeText(this, "UA CHANGE", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case R.id.ua_android:
-                if(item.isChecked())
-                {
-                    item.setChecked(false);
-                }
-                else
-                {
-                    item.setChecked(true);
-                }
-            case R.id.ua_browser:
-                if(item.isChecked())
-                {
-                    item.setChecked(false);
-                }
-                else
-                {
-                    item.setChecked(true);
-                }
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-        return true;
-    }
-
-    public void show (View view)
-    {
-        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) webView.getLayoutParams();
-        toolbar.setVisibility(View.VISIBLE);
-    }
-
-    public void hide (View view)
-    {
-        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) webView.getLayoutParams();
-        toolbar.setVisibility(View.GONE);
-    }
-
-    private class scroll implements View.OnScrollChangeListener {
-        @Override
-        public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-
-            int move = webView.getScrollY();
-            if(move > 2)
-            {
-                hide(toolbar);
-            }
-            else if (move <= 1)
-            {
-                show(toolbar);
-            }
-        }
-    }
-
-
-    public class LockScreenReceiver extends  BroadcastReceiver
-    {
-        @Override
-        public void onReceive(Context context, Intent intent)
-        {
-            if (intent != null && intent.getAction() != null)
-            {
-                if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
-                {
-                    // Screen is on but not unlocked (if any locking mechanism present)
-                }
-                else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
-                {
-                    webView.onResume();
-                }
-                else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT))
-                {
-                    // Screen is unlocked
-                }
-            }
-        }
     }
 
     @Override
@@ -337,6 +355,21 @@ public class Nitter extends AppCompatActivity {
 //
 //            return super.shouldInterceptRequest(view, request);
 //        }
+
+        private Map<String, Boolean> loadedUrls = new HashMap<>();
+        @Nullable
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            boolean ad;
+            if (!loadedUrls.containsKey(url)) {
+                ad = AdBlocker.isAd(url);
+                loadedUrls.put(url, ad);
+            } else {
+                ad = loadedUrls.get(url);
+            }
+            return ad ? AdBlocker.createEmptyResource() :
+                    super.shouldInterceptRequest(view, url);
+        }
     }
 
     private class MyChrome extends WebChromeClient
@@ -383,19 +416,6 @@ public class Nitter extends AppCompatActivity {
             getWindow().getDecorView().setSystemUiVisibility(3846 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
     }
-
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        //webView.saveState(outState);
-//
-//    }
-//
-//    @Override
-//    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-//        super.onRestoreInstanceState(savedInstanceState);
-//        //webView.restoreState(savedInstanceState);
-//    }
 
     @Override
     public void onBackPressed(){
