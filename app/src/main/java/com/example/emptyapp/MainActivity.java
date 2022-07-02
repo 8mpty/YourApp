@@ -62,7 +62,8 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (num == 2222)
         {
-            Nitter.url = "https://beatbump.ml/home/";
+            //Nitter.url = "https://beatbump.ml/home/";
+            Nitter.url = "https://music.youtube.com";
             startActivity(nitter);
             Nitter.isAudio = true;
         }
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (num == 6666)
         {
-            Nitter.url = "https://kisskh.me/";
+            Nitter.url = "https://www2.theshit.me/";
             startActivity(nitter);
         }
         else

@@ -1,6 +1,7 @@
 package com.example.emptyapp;
 
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,8 +12,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,7 +24,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -59,12 +59,10 @@ public class Nitter extends AppCompatActivity {
 
     LockScreenReceiver lockScreenReceiver;
 
-    RelativeLayout.LayoutParams lp;
-
     private Toolbar toolbar;
     private boolean videoEnabled;
 
-    AlertDialog ad;
+    AlertDialog alertDialog;
     CharSequence[] values = {"Phone (Android 9, Chrome)", "Desktop (Windows 10, Chrome)"};
 
     @Override
@@ -93,24 +91,10 @@ public class Nitter extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu,menu);
-
         return true;
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-
-        if(toolbar.getVisibility() == View.VISIBLE)
-        {
-            toolbar.setVisibility(View.GONE);
-        }
-        else
-        {
-            toolbar.setVisibility(View.VISIBLE);
-        }
-    }
-
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -134,24 +118,48 @@ public class Nitter extends AppCompatActivity {
                 break;
 
             case R.id.chk_ua:
-                if(item.isChecked())
+                if(!item.isChecked())
                 {
-                    item.setChecked(false);
                     UaCustomDialog();
-                }
-                else
-                {
-                    item.setChecked(true);
-                    UaCustomDialog();
-                    Toast.makeText(this, "UA CHANGE", Toast.LENGTH_SHORT).show();
                 }
                 break;
+
+            case R.id.hidetb:
+                if(!item.isChecked())
+                {
+                    HideTbDialog();
+                }
+
             default:
                 return super.onOptionsItemSelected(item);
         }
         return true;
     }
 
+
+    public void HideTbDialog()
+    {
+        // Custom Dialog to show *HIDE OR UNHIDE TOOLBAR*
+        AlertDialog.Builder builder = new AlertDialog.Builder(Nitter.this)
+                .setTitle("Hide / Unhide Toolbar")
+                .setMessage("! IMPORTANT ! \n\nTo UNHIDE the Toolbar, Long press any blank space. ")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(toolbar.getVisibility() != View.GONE) {
+                            toolbar.setVisibility(View.GONE);
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        alertDialog.dismiss();
+                    }
+                });
+        alertDialog = builder.create();
+        alertDialog.show();
+    }
     public void UaCustomDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(Nitter.this)
@@ -159,44 +167,45 @@ public class Nitter extends AppCompatActivity {
                 .setSingleChoiceItems(values, -1, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int item) {
-                        switch (item)
-                        {
-                            case 0:
-                                Toast.makeText(Nitter.this, "UA CHANGE Android", Toast.LENGTH_SHORT).show();
-                                ua = "Mozilla/5.0 (Linux; Android 9; J8110 Build/55.0.A.0.552; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/71.0.3578.99 Mobile Safari/537.36";
-                                webSettings.setUserAgentString(ua);
-                                webView.reload();
-                                break;
-                            case 1:
-                                Toast.makeText(Nitter.this, "UA CHANGE Desktop", Toast.LENGTH_SHORT).show();
-                                ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36";
-                                webSettings.setUserAgentString(ua);
-                                webView.reload();
-                                break;
+                        if (item == 0) {
+                            Toast.makeText(Nitter.this, "UA CHANGE Android", Toast.LENGTH_SHORT).show();
+                            ua = "Mozilla/5.0 (Linux; Android 9; J8110 Build/55.0.A.0.552; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/71.0.3578.99 Mobile Safari/537.36";
+                            webSettings.setUserAgentString(ua);
                         }
-                        ad.dismiss();
+                        else if (item == 1) {
+                            Toast.makeText(Nitter.this, "UA CHANGE Desktop", Toast.LENGTH_SHORT).show();
+                            ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36";
+                            webSettings.setUserAgentString(ua);
+                        }
+                        alertDialog.dismiss();
+                        webView.reload();
+                    }
+                })
+                .setNeutralButton("cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        alertDialog.dismiss();
                     }
                 });
-        ad = builder.create();
-        ad.show();
+
+        alertDialog = builder.create();
+        alertDialog.show();
     }
 
+    // When User Scrolls, Toolbar will get hidden and unhidden automatically if reaches the top.
     private class Scroll implements View.OnScrollChangeListener {
         @Override
         public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
 
             int move = webView.getScrollY();
-            if(move > 2)
-            {
+            if (move >= 2) {
                 toolbar.setVisibility(View.GONE);
             }
-            else if (move <= 1)
-            {
+            else{
                 toolbar.setVisibility(View.VISIBLE);
             }
         }
     }
-
 
     public class LockScreenReceiver extends  BroadcastReceiver
     {
@@ -205,23 +214,15 @@ public class Nitter extends AppCompatActivity {
         {
             if (intent != null && intent.getAction() != null)
             {
-
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
                 {
                     webView.onResume();
                 }
-//                else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT))
-//                {
-//                    // Screen is unlocked
-//                }
-//                else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON))
-//                {
-//                    // Screen is on but not unlocked (if any locking mechanism present)
-//                }
             }
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void webStuff()
     {
         webView = findViewById(R.id.webview);
@@ -252,42 +253,27 @@ public class Nitter extends AppCompatActivity {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
         {
             webView.setForceDarkAllowed(true);
-            webSettings.setForceDark(webSettings.FORCE_DARK_ON);
+            webSettings.setForceDark(WebSettings.FORCE_DARK_ON);
         }
 
         webView.setWebChromeClient(new MyChrome());
         webView.setWebViewClient(new MyWebViewClient());
 
         webView.loadUrl(url);
-        webView.setOnScrollChangeListener(new Scroll());
-    }
 
-    @Override
-    protected void onResume() {
-        Log.e("onMETHOD","RESUME");
-        webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
-        webView.onResume();
-        super.onResume();
-    }
+        // Enable this for scrolling hide toolbar feature //
+        //webView.setOnScrollChangeListener(new Scroll());
 
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.e("onPAUSED","RUNNING");
-        webView.onResume();
-    }
-
-    @Override
-    protected void onStop() {
-        Log.e("onMETHOD","STOPPED");
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.e("onMETHOD","DESTROYED");
-        super.onDestroy();
+        // Long clicking any space with un-hide the toolbar.
+        webView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (toolbar.getVisibility() != View.VISIBLE) {
+                    toolbar.setVisibility(View.VISIBLE);
+                }
+                return false;
+            }
+        });
     }
 
     private void readAdServers()
@@ -329,43 +315,27 @@ public class Nitter extends AppCompatActivity {
         public void onPageFinished(WebView view, String url)
         {
             super.onPageFinished(view, url);
+
+            // Remove Sign In Button on YT Music //
+            injectScriptFile(view , "scripts/rm_signIN.js");
+
+            // Remove YT or YT Music Video ads by increasing speed of video ads by 16x (Max). //
+            //injectScriptFile(view , "scripts/yt_adblocker.js");
+
+            // Remove ALL YT or YT Music Ads using AdGuard //
+            injectScriptFile(view , "scripts/adguard_yt.js");
+
+            // Bypass Age Restriction Videos On Youtube //
+            injectScriptFile(view , "scripts/agerestricbypass.js");
+
             if(!videoEnabled)
             {
+                // Remove YT video on YTMusic but will not skip ads.
+                injectScriptFile(view , "scripts/videoremover.js");
 
-                webView.loadUrl("javascript:(function() { " +
-                        "document.getElementsByClassName('sign-in-link style-scope ytmusic-nav-bar')[0].style.display='none';" +
-                        "})()");
-
-                webView.loadUrl("javascript:(function() { " +
-                        "document.getElementById('main-panel').style.display='none';" +
-                        "document.getElementsByClassName('style-scope ytd-button-renderer')[0].style.display='none';" +
-                        "})()");
                 videoEnabled = false;
             }
-            else
-            {
-                webView.loadUrl("javascript:(function() { " +
-                        "document.getElementsByClassName('sign-in-link style-scope ytmusic-nav-bar')[0].style.display='none';" +
-                        "})()");
-                videoEnabled = true;
-            }
-
         }
-//        @Override
-//        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request)
-//        {
-//            ByteArrayInputStream EMPTY = new ByteArrayInputStream("".getBytes());
-//            String ads = String.valueOf(adservers);
-//
-//            Log.d("ADDDDS CAUGHT",request.getUrl().getHost());
-//
-//            if(ads.contains(request.getUrl().getHost()))
-//            {
-//                Log.d("ADDDDS IN FILE AND BLOCKED",request.getUrl().getHost());
-//                return Adblocker.createEmptyResource();
-//            }
-//            return super.shouldInterceptRequest(view, request);
-//        }
 
         private Map<String, Boolean> loadedUrls = new HashMap<>();
         @Nullable
@@ -381,13 +351,38 @@ public class Nitter extends AppCompatActivity {
             return ad ? AdBlocker.createEmptyResource() :
                     super.shouldInterceptRequest(view, url);
         }
+
+    }
+
+    // JavaScript Injector
+    private void injectScriptFile(WebView view, String scriptFile) {
+        InputStream input;
+        try {
+            input = getAssets().open(scriptFile);
+            byte[] buffer = new byte[input.available()];
+            input.read(buffer);
+            input.close();
+
+            // String-ify the script byte-array using BASE64 encoding !!!
+            String encoded = Base64.encodeToString(buffer, Base64.NO_WRAP);
+            view.loadUrl("javascript:(function() {" +
+                    "var parent = document.getElementsByTagName('head').item(0);" +
+                    "var script = document.createElement('script');" +
+                    "script.type = 'text/javascript';" +
+                    // Tell the browser to BASE64-decode the string into your script !!!
+                    "script.innerHTML = window.atob('" + encoded + "');" +
+                    "parent.appendChild(script)" +
+                    "})()");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private class MyChrome extends WebChromeClient
     {
         private View mCustomView;
         private WebChromeClient.CustomViewCallback mCustomViewCallback;
-        //protected FrameLayout mFullscreenContainer;
         private int mOriginalOrientation;
         private int mOriginalSystemUiVisibility;
 
@@ -429,6 +424,32 @@ public class Nitter extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        Log.e("onMETHOD","RESUME");
+        webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
+        webView.onResume();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.e("onMETHOD","PAUSED");
+        webView.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        Log.e("onMETHOD","STOPPED");
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.e("onMETHOD","DESTROYED");
+        super.onDestroy();
+    }
+    @Override
     public void onBackPressed(){
         if(webView.canGoBack())
         {
@@ -437,8 +458,8 @@ public class Nitter extends AppCompatActivity {
         else
         {
             webView.clearHistory();
-            onStop();
             super.onBackPressed();
+            onStop();
         }
     }
 }

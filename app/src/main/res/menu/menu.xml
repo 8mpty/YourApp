@@ -11,18 +11,11 @@
         android:id="@+id/chk_ua"
         android:title="Change User Agent"
         app:showAsAction="never">
-
-<!--        <menu>-->
-<!--            <group android:checkableBehavior="all">-->
-<!--                <item-->
-<!--                    android:id="@+id/ua_android"-->
-<!--                    android:title="Android"/>-->
-<!--                <item-->
-<!--                    android:id="@+id/ua_browser"-->
-<!--                    android:title="Browser"/>-->
-<!--            </group>-->
-
-<!--        </menu>-->
+    </item>
+    <item
+        android:id="@+id/hidetb"
+        android:title="Hide ToolBar"
+        app:showAsAction="never">
 
     </item>
 </menu>
