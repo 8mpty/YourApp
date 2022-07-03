@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,6 +8,15 @@
     android:layout_height="match_parent"
     android:background="@color/black"
     tools:context=".MainActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id = "@+id/mtoolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/purple_500"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+
+        />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -26,6 +36,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.422" />
 
+
         <Button
             android:id="@+id/btnSub"
             android:layout_width="wrap_content"
@@ -40,33 +51,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-
+        <ImageButton
+            android:id="@+id/btnSecret"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="0"
+            android:clickable="true"
+            android:background="#00FFFFFF"
+            android:src="@drawable/ic_baseline_lock_24"
+            app:layout_constraintBottom_toBottomOf="@+id/txtpass"
+            app:layout_constraintStart_toStartOf="@+id/txtpass"
+            app:layout_constraintTop_toTopOf="@+id/txtpass"
+            app:layout_constraintVertical_bias="0.473" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--        android:id="@+id/floatingActionButton"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_alignParentEnd="true"-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        android:layout_marginEnd="20dp"-->
-<!--        android:layout_marginBottom="20dp"-->
-<!--        android:background="@color/white"-->
-<!--        android:backgroundTint="@color/purple_500"-->
-<!--        android:clickable="true"-->
-<!--        android:foregroundTint="@color/white"-->
-<!--        android:textColor="@color/white"-->
-<!--        android:tint="@color/white"-->
-<!--        app:backgroundTint="#673AB7"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintHorizontal_bias="0.954"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:rippleColor="@color/white"-->
-<!--        app:srcCompat="@drawable/ic_settings_icon" />-->
-
 
 </RelativeLayout>

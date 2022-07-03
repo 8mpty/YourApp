@@ -5,8 +5,23 @@
     <group android:checkableBehavior="all">
         <item
             android:id="@+id/chk_vid"
-            android:title="Allow Video" />
+            android:title="Allow Video"
+            app:showAsAction="never" />
     </group>
+    <item
+        android:id="@+id/adblocker"
+        android:title="Choose AdBlocker Type"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/ad_guard"
+                android:title="AdGuard"/>
+            <item
+                android:id="@+id/ad_16x"
+                android:title="AdBlock (16x)" />
+        </menu>
+
+    </item>
     <item
         android:id="@+id/chk_ua"
         android:title="Change User Agent"
@@ -16,6 +31,10 @@
         android:id="@+id/hidetb"
         android:title="Hide ToolBar"
         app:showAsAction="never">
-
+    </item>
+    <item
+        android:id="@+id/menu_set"
+        android:title="Settings"
+        app:showAsAction="never">
     </item>
 </menu>

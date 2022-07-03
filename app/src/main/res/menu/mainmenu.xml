@@ -10,10 +10,12 @@
     </item>
     <item
         android:title="Info"
+        android:id="@+id/btnInfo"
         android:icon="@drawable/ic_info"
         app:showAsAction="always">
     </item>
     <item
+        android:id="@+id/btnSet"
         android:title="Settings"/>
     <item
         android:id="@+id/main_exit"

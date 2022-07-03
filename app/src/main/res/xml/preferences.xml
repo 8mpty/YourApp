@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ListPreference
+        android:key="UA"
+        android:title="User Agent"
+        android:summary="%s"
+        app:iconSpaceReserved="false"
+        android:entries="@array/first"
+        android:entryValues="@array/second">
+    </ListPreference>
+
+    <CheckBoxPreference
+        android:key="auto_TB"
+        app:iconSpaceReserved="false"
+        android:title="Auto-Hide Toolbar"
+        android:summary="Hides the toolbar when you scroll down, \nreveal when you scroll up.">
+    </CheckBoxPreference>
+
+    <CheckBoxPreference
+        android:key="TB"
+        app:iconSpaceReserved="false"
+        android:title="Hide Toolbar"
+        android:summary="Hides Toolbar. Long-press \na blank spot to toggle."
+        android:defaultValue="false">
+    </CheckBoxPreference>
+
+
+</PreferenceScreen>

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,6 +33,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 
 import com.monstertechno.adblocker.util.AdBlocker;
 
@@ -65,6 +67,11 @@ public class Nitter extends AppCompatActivity {
     AlertDialog alertDialog;
     CharSequence[] values = {"Phone (Android 9, Chrome)", "Desktop (Windows 10, Chrome)"};
 
+    SharedPreferences pref;
+    SharedPreferences.Editor editor;
+
+    private boolean tb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +90,11 @@ public class Nitter extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.ic_menu));
+
+        pref  = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        editor = pref.edit();
+        ua = pref.getString("UA","");
+        tb = pref.getBoolean("TB", false);
 
         webStuff();
     }
@@ -129,6 +141,12 @@ public class Nitter extends AppCompatActivity {
                 {
                     HideTbDialog();
                 }
+                break;
+            case R.id.menu_set:
+                if(!item.isChecked())
+                {
+                    startActivity(new Intent(Nitter.this, SettingsActivity.class));
+                }
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -148,6 +166,8 @@ public class Nitter extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         if(toolbar.getVisibility() != View.GONE) {
                             toolbar.setVisibility(View.GONE);
+                            editor.putBoolean("TB", false);
+                            editor.commit();
                         }
                     }
                 })
@@ -162,21 +182,26 @@ public class Nitter extends AppCompatActivity {
     }
     public void UaCustomDialog()
     {
+
         AlertDialog.Builder builder = new AlertDialog.Builder(Nitter.this)
                 .setTitle("Change User Agent")
                 .setSingleChoiceItems(values, -1, new DialogInterface.OnClickListener() {
+
                     @Override
                     public void onClick(DialogInterface dialog, int item) {
                         if (item == 0) {
                             Toast.makeText(Nitter.this, "UA CHANGE Android", Toast.LENGTH_SHORT).show();
                             ua = "Mozilla/5.0 (Linux; Android 9; J8110 Build/55.0.A.0.552; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/71.0.3578.99 Mobile Safari/537.36";
+                            SaveUAData();
                             webSettings.setUserAgentString(ua);
                         }
                         else if (item == 1) {
                             Toast.makeText(Nitter.this, "UA CHANGE Desktop", Toast.LENGTH_SHORT).show();
                             ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36";
+                            SaveUAData();
                             webSettings.setUserAgentString(ua);
                         }
+                        editor.commit();
                         alertDialog.dismiss();
                         webView.reload();
                     }
@@ -270,6 +295,8 @@ public class Nitter extends AppCompatActivity {
             public boolean onLongClick(View v) {
                 if (toolbar.getVisibility() != View.VISIBLE) {
                     toolbar.setVisibility(View.VISIBLE);
+                    editor.putBoolean("TB", false);
+                    editor.commit();
                 }
                 return false;
             }
@@ -423,8 +450,16 @@ public class Nitter extends AppCompatActivity {
         }
     }
 
+
+    private void SaveUAData()
+    {
+        editor.putString("UA", ua);
+        editor.commit();
+    }
     @Override
     protected void onResume() {
+        pref.getBoolean("TB", false);
+
         Log.e("onMETHOD","RESUME");
         webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
         webView.onResume();
