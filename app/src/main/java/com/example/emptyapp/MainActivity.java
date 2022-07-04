@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.main_exit: {
-                finish();   
+                finish();
             }
             break;
 
@@ -127,10 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
         int backup_key = getResources().getInteger(R.integer.backup_key);
 
-        if(num == pass){
-            startActivity(webLinks);
-        }
-        else if (num == backup_key) {
+        if(num == pass || num == backup_key){
             startActivity(webLinks);
         }
         else txtPass.setError("Invalid Code");
