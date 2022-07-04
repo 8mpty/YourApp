@@ -16,7 +16,7 @@
     </item>
     <item
         android:id="@+id/btnSet"
-        android:title="Settings"/>
+        android:title="Settings" />
     <item
         android:id="@+id/main_exit"
         android:title="Exit"
