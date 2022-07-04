@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/grey">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="10dp">
+
+        <TextView
+            android:id="@+id/txt_webTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WebPageTitle"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_marginLeft="10sp">
+
+        </TextView>
+
+        <TextView
+            android:id="@+id/txt_webLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WebPageLink"
+            android:textSize="10sp"
+            android:layout_marginLeft="10sp"
+            android:textColor="@color/white">
+
+        </TextView>
+
+    </LinearLayout>
+</RelativeLayout>

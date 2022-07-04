@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.util.Objects;
+
 public class SettingsActivity extends AppCompatActivity {
 
 
@@ -16,7 +18,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         tb = findViewById(R.id.mtoolbar);
         setSupportActionBar(tb);
-        getSupportActionBar().setTitle("Settings");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Settings");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

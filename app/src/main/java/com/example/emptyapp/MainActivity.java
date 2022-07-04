@@ -2,6 +2,7 @@ package com.example.emptyapp;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -12,23 +13,26 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
+
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText txtPass;
-    Button btnSub;
-
-
+    private EditText txtPass;
     private Toolbar toolbar;
-    private ImageButton btnSecret;
 
-    private long then;
-    private int longClickDuration= 2500;
     private int count = 0;
+
+    SharedPreferences pref;
+    SharedPreferences.Editor editor;
+
+    private static final String PREF_SECKEY = "pref_SecKey";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,20 +42,24 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
+        pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        editor = pref.edit();
+
+
+
         count = 0;
 
         txtPass = findViewById(R.id.txtpass);
-        btnSub = findViewById(R.id.btnSub);
+        Button btnSub = findViewById(R.id.btnSub);
         txtPass.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         toolbar = findViewById(R.id.mtoolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
         toolbar.setVisibility(View.GONE);
 
-        btnSub.setOnClickListener(v ->
-        {
+        btnSub.setOnClickListener(v -> {
             if(TextUtils.isEmpty(txtPass.getText().toString())) {
                 txtPass.setError("Please input code!");
             }
@@ -69,35 +77,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void UnHideToolBar()
-    {
-        btnSecret = findViewById(R.id.btnSecret);
-
-//        btnSecret.setOnTouchListener((v, event) -> {
-//            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//                then = (long) System.currentTimeMillis();
-//            }
-//            else if (event.getAction() == MotionEvent.ACTION_UP)
-//            {
-//                if ((long) (System.currentTimeMillis() - then) > longClickDuration) {
-//                    if(toolbar.getVisibility() == View.GONE)
-//                    {
-//                        toolbar.setVisibility(View.VISIBLE);
-//                    }
-//                }
-//                return false;
-//            }
-//            return true;
-//        });
-
-        btnSecret.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                count++;
-                if (count >= 5) {
-                    toolbar.setVisibility(View.VISIBLE);
-                    count = 0;
-                }
+    private void UnHideToolBar() {
+        ImageButton btnSecret = findViewById(R.id.btnSecret);
+        btnSecret.setOnClickListener(v -> {
+            count++;
+            if (count >= 5) {
+                toolbar.setVisibility(View.VISIBLE);
+                Toast.makeText(MainActivity.this,"UNLOCKED DEVELOPER SETTINGS", Toast.LENGTH_SHORT).show();
+                count = 0;
             }
         });
 
@@ -113,17 +100,14 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId())
-        {
-            case R.id.main_exit:
-            {
-                finish();
+        switch (item.getItemId()) {
+            case R.id.main_exit: {
+                finish();   
             }
             break;
 
             case R.id.btnSet:{
-                if(!item.isChecked())
-                {
+                if(!item.isChecked()) {
                     startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 }
             }
@@ -136,37 +120,18 @@ public class MainActivity extends AppCompatActivity {
     public void OpenAct() {
 
         int num = Integer.parseInt(txtPass.getText().toString());
-        Intent nitter = new Intent(this, Nitter.class);
+        Intent webLinks = new Intent(this, WebLinksActivity.class);
 
         txtPass.setText("");
+        int pass = Integer.parseInt(pref.getString(PREF_SECKEY,""));
 
-        if (num == 1111) {
-            Nitter.url = "https://www.youtube.com/";
-            startActivity(nitter);
+        int backup_key = getResources().getInteger(R.integer.backup_key);
+
+        if(num == pass){
+            startActivity(webLinks);
         }
-        else if (num == 2222) {
-            Nitter.url = "https://music.youtube.com";
-            startActivity(nitter);
-        }
-        else if (num == 3333) {
-            Nitter.url = "https://animixplay.to/";
-            startActivity(nitter);
-        }
-        else if (num == 4444) {
-            Nitter.url = "https://nitter.net";
-            startActivity(nitter);
-        }
-        else if(num == 5555) {
-            Nitter.url = "https://gogoanime.gg/";
-            startActivity(nitter);
-        }
-        else if (num == 6969) {
-            Nitter.url = "https://canyoublockit.com";
-            startActivity(nitter);
-        }
-        else if (num == 6666) {
-            Nitter.url = "https://www2.theshit.me/";
-            startActivity(nitter);
+        else if (num == backup_key) {
+            startActivity(webLinks);
         }
         else txtPass.setError("Invalid Code");
     }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="web_Arr">My RecyclerView</string>
+
+    <string-array name="web_name">
+        <item>Youtube</item>
+        <item>YT Music</item>
+        <item>Animixplay</item>
+        <item>Nitter</item>
+        <item>GoGoanime</item>
+        <item>TheShitMe</item>
+        <item>CanYouBlockIt? (AdBlock Tester)</item>
+    </string-array>
+
+    <string-array name="web_links">
+        <item>www.youtube.com</item>
+        <item>music.youtube.com</item>
+        <item>animixplay.to</item>
+        <item>nitter.net</item>
+        <item>gogoanime.gg</item>
+        <item>www2.theshit.me</item>
+        <item>canyoublockit.com</item>
+    </string-array>
+
+</resources>

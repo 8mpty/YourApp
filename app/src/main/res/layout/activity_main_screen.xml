@@ -5,9 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    tools:context=".MainScreen">
+    android:background="@color/grey"
+    tools:context=".WebLinksActivity">
 
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/main_Rec"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/mtoolbar"/>
 
     <androidx.appcompat.widget.Toolbar
         android:id = "@+id/mtoolbar"
@@ -18,14 +24,16 @@
 
         />
 
-    <Button
+    <!--<Button
         android:id="@+id/buttonStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
-        android:layout_marginTop="305dp"
-        android:layout_marginEnd="165dp" />
+        android:layout_marginTop="569dp"
+        android:layout_marginEnd="162dp"
+        android:layout_marginBottom="42dp" />-->
 
 </RelativeLayout>

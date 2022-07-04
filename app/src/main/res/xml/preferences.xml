@@ -11,6 +11,13 @@
         android:entries="@array/first"
         android:entryValues="@array/second">
     </ListPreference>
+    <SwitchPreference
+        android:key="pref_INCOG"
+        android:title="Incognito Mode"
+        android:summary="Turning this on will enable incognito mode, switch off to disable."
+        app:iconSpaceReserved="false"
+        android:defaultValue="false">
+    </SwitchPreference>
 
     <CheckBoxPreference
         android:key="auto_TB"
@@ -20,12 +27,21 @@
     </CheckBoxPreference>
 
     <CheckBoxPreference
-        android:key="TB"
+        android:key="pref_TB"
         app:iconSpaceReserved="false"
         android:title="Hide Toolbar"
         android:summary="Hides Toolbar. Long-press \na blank spot to toggle."
         android:defaultValue="false">
     </CheckBoxPreference>
+
+    <EditTextPreference
+        android:key="pref_SecKey"
+        android:title="Secret Key"
+        app:useSimpleSummaryProvider="true"
+        android:summary="Used to unlock app"
+        app:iconSpaceReserved="false">
+
+    </EditTextPreference>
 
 
 </PreferenceScreen>

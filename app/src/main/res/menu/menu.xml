@@ -22,16 +22,21 @@
         </menu>
 
     </item>
+
     <item
         android:id="@+id/chk_ua"
         android:title="Change User Agent"
         app:showAsAction="never">
     </item>
-    <item
-        android:id="@+id/hidetb"
-        android:title="Hide ToolBar"
-        app:showAsAction="never">
-    </item>
+
+    <group android:checkableBehavior="all">
+        <item
+            android:id="@+id/hidetb"
+            android:title="Hide ToolBar"
+            app:showAsAction="never">
+        </item>
+    </group>
+
     <item
         android:id="@+id/menu_set"
         android:title="Settings"
