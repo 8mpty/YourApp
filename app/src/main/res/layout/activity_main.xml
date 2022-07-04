@@ -29,7 +29,6 @@
             android:layout_above="@+id/btnSub"
             android:layout_centerInParent="true"
             android:drawableStart="@drawable/ic_baseline_lock_24"
-            android:minHeight="48dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.497"

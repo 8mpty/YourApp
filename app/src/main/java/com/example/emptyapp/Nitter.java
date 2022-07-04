@@ -19,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -32,7 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -91,16 +89,12 @@ public class Nitter extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.ic_menu));
-
 
         pref  = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         editor = pref.edit();
         ua = pref.getString("UA","");
         tb = pref.getBoolean("TB", false);
-
 
         webStuff();
     }
@@ -259,7 +253,6 @@ public class Nitter extends AppCompatActivity {
         webView = findViewById(R.id.webview);
         webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        CookieManager.getInstance().setAcceptCookie(false);
 
         webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         webView.setScrollbarFadingEnabled(true);
@@ -267,6 +260,7 @@ public class Nitter extends AppCompatActivity {
         webView.clearHistory();
         webView.clearCache(true);
         webView.clearFormData();
+        webView.clearHistory();
         webView.clearSslPreferences();
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         webView.setBackgroundColor(0x00000000);
@@ -275,13 +269,11 @@ public class Nitter extends AppCompatActivity {
         webSettings.setSupportZoom(true);
         webSettings.setDisplayZoomControls(false);
         webSettings.setDomStorageEnabled(true);
-        webSettings.setAppCacheEnabled(false);
-        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webSettings.setAppCacheEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
         webSettings.setMediaPlaybackRequiresUserGesture(false);
         webSettings.setUserAgentString(ua);
-        webSettings.setSafeBrowsingEnabled(true);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
         {
@@ -362,9 +354,6 @@ public class Nitter extends AppCompatActivity {
 
             // Bypass Age Restriction Videos On Youtube //
             injectScriptFile(view , "scripts/agerestricbypass.js");
-
-            // Mute Audios in WebPages //
-            injectScriptFile(view , "scripts/mute_audio.js");
 
             if(!videoEnabled)
             {
@@ -495,13 +484,6 @@ public class Nitter extends AppCompatActivity {
         Log.e("onMETHOD","DESTROYED");
         super.onDestroy();
     }
-
-    @Override
-    public boolean onNavigateUp() {
-        onBackPressed();
-        return super.onNavigateUp();
-    }
-
     @Override
     public void onBackPressed(){
         if(webView.canGoBack())
