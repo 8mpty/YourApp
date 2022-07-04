@@ -8,21 +8,15 @@ import androidx.preference.PreferenceFragmentCompat;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
-    private static final String PREF_TB = "pref_TB";
-    private static final String KEY_CHECKBOX = "Checkbox";
-
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
 
-        preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if(key.equals(Nitter.PREF_UA)){
-                    Nitter.uaChanged = true;
-                }
+        preferenceChangeListener = (sharedPreferences, key) -> {
+            if(key.equals(Nitter.PREF_UA)){
+                Nitter.uaChanged = true;
             }
         };
 

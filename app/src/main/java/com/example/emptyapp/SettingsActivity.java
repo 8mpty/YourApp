@@ -10,13 +10,12 @@ import java.util.Objects;
 public class SettingsActivity extends AppCompatActivity {
 
 
-    private Toolbar tb;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        tb = findViewById(R.id.mtoolbar);
+        Toolbar tb = findViewById(R.id.mtoolbar);
         setSupportActionBar(tb);
         Objects.requireNonNull(getSupportActionBar()).setTitle("Settings");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
