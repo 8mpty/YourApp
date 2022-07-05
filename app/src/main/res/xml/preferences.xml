@@ -11,6 +11,7 @@
         android:entries="@array/first"
         android:entryValues="@array/second">
     </ListPreference>
+
     <SwitchPreference
         android:key="pref_INCOG"
         android:title="Incognito Mode"
@@ -37,11 +38,8 @@
     <EditTextPreference
         android:key="pref_SecKey"
         android:title="Secret Key"
-        app:useSimpleSummaryProvider="true"
         android:summary="Used to unlock app"
         app:iconSpaceReserved="false">
-
     </EditTextPreference>
-
 
 </PreferenceScreen>
