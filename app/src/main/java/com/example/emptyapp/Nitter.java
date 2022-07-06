@@ -65,7 +65,6 @@ public class Nitter extends AppCompatActivity {
 
     boolean incog = false;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -241,11 +240,9 @@ public class Nitter extends AppCompatActivity {
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         webView.setBackgroundColor(0x00000000);
 
-        webSettings.setAppCacheEnabled(false);
-        webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-
-//        webSettings.setAppCacheEnabled(true);
-//        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        // Default to NOT INCOG , BY RIGHT ;) //
+        webSettings.setAppCacheEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 
         webSettings.setBuiltInZoomControls(true);
         webSettings.setSupportZoom(true);
@@ -293,9 +290,9 @@ public class Nitter extends AppCompatActivity {
         else {
             editor.putBoolean(PREF_INCOG, true);
             editor.commit();
-
+            webSettings.setAppCacheEnabled(false);
+            webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
             Toast.makeText(this, "IN INCOG", Toast.LENGTH_SHORT).show();
-
         }
     }
 

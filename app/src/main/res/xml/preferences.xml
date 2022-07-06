@@ -15,7 +15,7 @@
     <SwitchPreference
         android:key="pref_INCOG"
         android:title="Incognito Mode"
-        android:summary="Turning this on will enable incognito mode, switch off to disable."
+        android:summary="Turning this on will enable incognito mode, switch off to disable. Please *RESTART* when changing this"
         app:iconSpaceReserved="false"
         android:defaultValue="false">
     </SwitchPreference>
