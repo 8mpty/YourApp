@@ -7,18 +7,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    tools:context=".Nitter"
-    >
+    tools:context=".Nitter">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
+    <androidx.appcompat.widget.Toolbar
 
-    <org.adblockplus.libadblockplus.android.webview.AdblockWebView
-        android:id="@+id/webview"
+        android:id = "@+id/mtoolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar"
-        android:layout_alignParentStart="true" />
+        android:layout_height="wrap_content"
+        android:background="@color/purple_500"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+    </androidx.appcompat.widget.Toolbar>
+
+        <org.adblockplus.libadblockplus.android.webview.AdblockWebView
+
+            android:id="@+id/webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/mtoolbar">
+
+        </org.adblockplus.libadblockplus.android.webview.AdblockWebView>
+
+
+
+
 
 </RelativeLayout>

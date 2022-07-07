@@ -111,7 +111,11 @@ public class WebLinksActivity extends AppCompatActivity{
         return true;
     }
 
+
+
+
     public void SetNewLink(){
+
         final EditText input = new EditText(this);
         input.setSingleLine();
         input.setHint("https://");
@@ -123,11 +127,11 @@ public class WebLinksActivity extends AppCompatActivity{
         container.addView(input);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle("Set Custom Site")
+                .setTitle("Add Custom Site")
                 .setView(container)
                 .setPositiveButton("Save", (dialog, which) -> {
                     linkModalArrayList.add(new LinkModal(input.getText().toString(), input.getText().toString()));
-                    adapter.notifyItemInserted(linkModalArrayList.size() + 1);
+                    adapter.notifyItemInserted(linkModalArrayList.size());
                     saveData();
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> alertDialog.dismiss());
@@ -190,6 +194,9 @@ public class WebLinksActivity extends AppCompatActivity{
         // after saving data we are displaying a toast message.
         Toast.makeText(this, "Saved Array List to Shared preferences. ", Toast.LENGTH_SHORT).show();
     }
+
+
+
 
     @Override
     protected void onResume() {

@@ -40,7 +40,6 @@ import java.util.Objects;
 
 public class Nitter extends AppCompatActivity {
 
-
     AdblockWebView webView;
     WebSettings webSettings;
     public static String ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36"; // Desktop User Agent
@@ -59,6 +58,7 @@ public class Nitter extends AppCompatActivity {
 
     private static final String PREF_TB = "pref_TB";
     private static final String PREF_INCOG = "pref_INCOG";
+    private static final String PREF_AUTO_TB = "auto_TB";
     public static final String PREF_UA = "UA";
 
     public static  boolean uaChanged;
@@ -70,7 +70,7 @@ public class Nitter extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setStatusBarColor(getColor(R.color.black));
         setContentView(R.layout.activity_nitter);
-        toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.mtoolbar);
 
         Adblocker.init(this);
 
@@ -82,6 +82,9 @@ public class Nitter extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
         toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.ic_menu));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        //getSupportActionBar().setHideOnContentScrollEnabled(true);
 
         pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         editor = pref.edit();
@@ -91,11 +94,13 @@ public class Nitter extends AppCompatActivity {
         }
         else toolbar.setVisibility(View.VISIBLE);
 
+
         incog = pref.getBoolean(PREF_INCOG, false);
         ua = pref.getString(PREF_UA, ua);
 
         webStuff();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -149,7 +154,6 @@ public class Nitter extends AppCompatActivity {
         return true;
     }
 
-
     public void HideTbDialog()
     {
         // Custom Dialog to show *HIDE OR UN-HIDE TOOLBAR*
@@ -199,12 +203,10 @@ public class Nitter extends AppCompatActivity {
 //        public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
 //
 //            int move = webView.getScrollY();
-//            if (move >= 2) {
+//            if (move >= 5) {
 //                toolbar.setVisibility(View.GONE);
 //            }
-//            else{
-//                toolbar.setVisibility(View.VISIBLE);
-//            }
+//            else if (move <= 2)toolbar.setVisibility(View.VISIBLE);
 //        }
 //    }
 
@@ -267,6 +269,7 @@ public class Nitter extends AppCompatActivity {
         // Long clicking any space with un-hide the toolbar.
 
         //webView.setOnScrollChangeListener(new Scroll());
+
         webView.setOnLongClickListener(v -> {
             if (toolbar.getVisibility() != View.VISIBLE) {
                 toolbar.setVisibility(View.VISIBLE);
@@ -320,11 +323,12 @@ public class Nitter extends AppCompatActivity {
             // TODO FIX BACKGROUND AUDIO
             injectScriptFile(view , "scripts/bk.js");
 
+            injectScriptFile(view , "scripts/mute.js");
+
             if(!videoEnabled)
             {
                 // Remove YT video on YTMusic but will not skip ads.
                 injectScriptFile(view , "scripts/videoremover.js");
-
                 videoEnabled = false;
             }
         }
@@ -408,7 +412,6 @@ public class Nitter extends AppCompatActivity {
             toolbar.setVisibility(View.VISIBLE);
 
         if(uaChanged){
-            Toast.makeText(this,"UA CHANGED"+ua,Toast.LENGTH_SHORT).show();
             ua = pref.getString(PREF_UA, ua);
             webSettings.setUserAgentString(ua);
             webView.loadUrl(WebLinksActivity.webActURL);
@@ -421,8 +424,6 @@ public class Nitter extends AppCompatActivity {
         webView.onResume();
         super.onResume();
     }
-
-
 
     @Override
     protected void onPause() {
@@ -450,5 +451,11 @@ public class Nitter extends AppCompatActivity {
             super.onBackPressed();
             onStop();
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return super.onSupportNavigateUp();
     }
 }
