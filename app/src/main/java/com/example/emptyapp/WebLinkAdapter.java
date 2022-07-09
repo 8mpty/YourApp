@@ -27,6 +27,7 @@ public class WebLinkAdapter extends RecyclerView.Adapter<WebLinkAdapter.ViewHold
         this.linkModalArrayList = linkModalArrayList;
         this.context = context;
     }
+
     @NonNull
     @Override
     public WebLinkAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -40,6 +41,7 @@ public class WebLinkAdapter extends RecyclerView.Adapter<WebLinkAdapter.ViewHold
         LinkModal modal = linkModalArrayList.get(position);
         holder.urlNameTV.setText(modal.getUrlName());
         holder.urlLinkTV.setText(modal.getUrlLink());
+        //Picasso.get().load(modal.getUrlIcon()).into(holder.urlIconTV);
 
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
@@ -48,15 +50,16 @@ public class WebLinkAdapter extends RecyclerView.Adapter<WebLinkAdapter.ViewHold
             v.getContext().startActivity(intent);
         });
 
-        holder.itemView.setOnLongClickListener(view -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                    .setTitle("Delete Custom Site")
-                    .setPositiveButton("Ok", (dialog, which) -> DelItem(position))
-                    .setNegativeButton("Cancel", (dialog, which) -> alertDialog.dismiss());
-            alertDialog = builder.create();
-            alertDialog.show();
-            return true;
-        });
+//        holder.itemView.setOnLongClickListener(view -> {
+//            AlertDialog.Builder builder = new AlertDialog.Builder(context)
+//                    .setTitle("Delete Custom Site")
+//                    .setPositiveButton("Ok", (dialog, which) -> DelItem(position))
+//                    .setNegativeButton("Cancel", (dialog, which) -> alertDialog.dismiss());
+//            alertDialog = builder.create();
+//            alertDialog.show();
+//            return true;
+//        });
+
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -83,12 +86,14 @@ public class WebLinkAdapter extends RecyclerView.Adapter<WebLinkAdapter.ViewHold
     public static class ViewHolder extends RecyclerView.ViewHolder{
 
         private final TextView urlNameTV, urlLinkTV;
+        //private final ImageView urlIconTV;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             urlNameTV = itemView.findViewById(R.id.txt_webTitle);
             urlLinkTV = itemView.findViewById(R.id.txt_webLink);
+            //urlIconTV = itemView.findViewById(R.id.webIcon);
         }
     }
 }

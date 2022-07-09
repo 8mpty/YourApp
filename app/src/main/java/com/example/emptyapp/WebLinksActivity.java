@@ -1,30 +1,37 @@
 package com.example.emptyapp;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.FrameLayout;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
+
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 public class WebLinksActivity extends AppCompatActivity{
 
@@ -35,14 +42,16 @@ public class WebLinksActivity extends AppCompatActivity{
     SharedPreferences pref;
     SharedPreferences.Editor editor;
 
-    public static String webActURL;
-
     private WebLinkAdapter adapter;
+
     private ArrayList<LinkModal> linkModalArrayList;
 
+    private TextInputEditText et_WebName, et_WebUrl;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().setStatusBarColor(getColor(R.color.darker_purple));
         setContentView(R.layout.activity_weblink);
 
         pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -58,6 +67,59 @@ public class WebLinksActivity extends AppCompatActivity{
         loadData();
         BuildRecyclerView();
     }
+    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT){
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+
+            int fromPos = viewHolder.getAdapterPosition();
+            int toPos = target.getAdapterPosition();
+
+            Collections.swap(linkModalArrayList, fromPos, toPos);
+
+            recyclerView.getAdapter().notifyItemMoved(fromPos, toPos);
+            saveData();
+
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            int pos = viewHolder.getAdapterPosition();
+
+            switch (direction) {
+                case ItemTouchHelper.RIGHT:
+                    linkModalArrayList.remove(pos);
+                    rv.getAdapter().notifyItemRemoved(pos);
+                    break;
+
+                case ItemTouchHelper.LEFT:
+                    SetNewLink();
+                    linkModalArrayList.remove(pos);
+                    rv.getAdapter().notifyItemRemoved(pos);
+                    break;
+            }
+            saveData();
+        }
+        public void onChildDraw (Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+
+                    .addSwipeRightBackgroundColor(ContextCompat.getColor(WebLinksActivity.this, R.color.black))
+                    .addSwipeRightActionIcon(R.drawable.ic_delete_outline)
+                    .addSwipeRightLabel("Delete")
+                    .setSwipeRightLabelColor(ContextCompat.getColor(WebLinksActivity.this, R.color.white))
+
+                    .addSwipeLeftBackgroundColor(ContextCompat.getColor(WebLinksActivity.this, R.color.black))
+                    .addSwipeLeftActionIcon(R.drawable.ic_edit_24)
+                    .addSwipeLeftLabel("Edit")
+                    .setSwipeLeftLabelColor(ContextCompat.getColor(WebLinksActivity.this, R.color.white))
+
+                    .create()
+                    .decorate();
+
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -79,6 +141,9 @@ public class WebLinksActivity extends AppCompatActivity{
 
         // setting adapter to our recycler view.
         rv.setAdapter(adapter);
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(rv);
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -111,31 +176,41 @@ public class WebLinksActivity extends AppCompatActivity{
         return true;
     }
 
-
-
-
     public void SetNewLink(){
 
-        final EditText input = new EditText(this);
-        input.setSingleLine();
-        input.setHint("https://");
+        AlertDialog.Builder alertDialogBuilder;
+        alertDialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.newlinkalert, null);
 
-        FrameLayout container = new FrameLayout(WebLinksActivity.this);
-        FrameLayout.LayoutParams params = new  FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.setMargins(65,40,65,4);
-        input.setLayoutParams(params);
-        container.addView(input);
+        et_WebName = view.findViewById(R.id.et_WebName);
+        et_WebUrl = view.findViewById(R.id.et_WebUrl);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+        alertDialogBuilder.setView(view)
                 .setTitle("Add Custom Site")
-                .setView(container)
-                .setPositiveButton("Save", (dialog, which) -> {
-                    linkModalArrayList.add(new LinkModal(input.getText().toString(), input.getText().toString()));
-                    adapter.notifyItemInserted(linkModalArrayList.size());
-                    saveData();
+                .setPositiveButton("OK" , new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(et_WebName.getText().toString().trim().equals("") | et_WebUrl.getText().toString().trim().equals("")){
+                            Toast.makeText(WebLinksActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            linkModalArrayList.add(new LinkModal(et_WebName.getText().toString(), et_WebUrl.getText().toString()));
+                            adapter.notifyItemInserted(linkModalArrayList.size());
+                            saveData();
+                        }
+                        alertDialog.show();
+                    }
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> alertDialog.dismiss());
-        alertDialog = builder.create();
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        alertDialog = alertDialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawableResource(R.color.darker_grey);
         alertDialog.show();
     }
 
@@ -192,11 +267,8 @@ public class WebLinksActivity extends AppCompatActivity{
         editor.apply();
 
         // after saving data we are displaying a toast message.
-        Toast.makeText(this, "Saved Array List to Shared preferences. ", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
     }
-
-
-
 
     @Override
     protected void onResume() {

@@ -2,6 +2,7 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="8dp"
@@ -11,7 +12,7 @@
     app:cardBackgroundColor="@color/grey"
     app:cardCornerRadius="8dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -21,23 +22,41 @@
             android:id="@+id/txt_webTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
             android:text="WebPageTitle"
             android:textColor="@color/white"
-            android:textStyle="bold"
             android:textSize="20sp"
-            android:layout_marginLeft="10sp">
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/webIcon"
+            app:layout_constraintTop_toTopOf="parent">
+
         </TextView>
 
         <TextView
             android:id="@+id/txt_webLink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:text="WebPageLink"
+            android:textColor="@color/white"
             android:textSize="10sp"
-            android:layout_marginLeft="10sp"
-            android:textColor="@color/white">
+            app:layout_constraintStart_toStartOf="@+id/txt_webTitle"
+            app:layout_constraintTop_toBottomOf="@+id/txt_webTitle">
+
         </TextView>
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/webIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_bookmark_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+        </ImageView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

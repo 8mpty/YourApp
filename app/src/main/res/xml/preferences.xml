@@ -15,25 +15,26 @@
     <SwitchPreference
         android:key="pref_INCOG"
         android:title="Incognito Mode"
-        android:summary="Turning this on will enable incognito mode, switch off to disable. Please *RESTART* when changing this"
+        android:summary="Turning this on will enable incognito mode, switch off to disable.\nPlease *RESTART APP* when changing this."
         app:iconSpaceReserved="false"
         android:defaultValue="false">
     </SwitchPreference>
 
     <CheckBoxPreference
-        android:key="auto_TB"
-        app:iconSpaceReserved="false"
-        android:title="Auto-Hide Toolbar"
-        android:summary="Hides the toolbar when you scroll down, \nreveal when you scroll up.">
-    </CheckBoxPreference>
-
-    <CheckBoxPreference
         android:key="pref_TB"
         app:iconSpaceReserved="false"
         android:title="Hide Toolbar"
-        android:summary="Hides Toolbar. Long-press \na blank spot to toggle."
+        android:summary="Hides Toolbar. Long-press \na blank spot to toggle back on."
         android:defaultValue="false">
     </CheckBoxPreference>
+
+    <SwitchPreference
+        android:key="pref_RANDKEYS"
+        android:title="Randomize Keypad Numbers"
+        android:summary="Enabling this will changing keypad numbers at random. Helps with security."
+        app:iconSpaceReserved="false"
+        android:defaultValue="false">
+    </SwitchPreference>
 
     <EditTextPreference
         android:key="pref_SecKey"

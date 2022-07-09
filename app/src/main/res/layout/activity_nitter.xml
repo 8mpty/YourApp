@@ -19,17 +19,13 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-        <org.adblockplus.libadblockplus.android.webview.AdblockWebView
+    <org.adblockplus.libadblockplus.android.webview.AdblockWebView
 
-            android:id="@+id/webview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/mtoolbar">
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/mtoolbar">
 
-        </org.adblockplus.libadblockplus.android.webview.AdblockWebView>
-
-
-
-
+    </org.adblockplus.libadblockplus.android.webview.AdblockWebView>
 
 </RelativeLayout>

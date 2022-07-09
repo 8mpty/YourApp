@@ -19,4 +19,6 @@
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <integer name="backup_key">11223344</integer>
+
+    <string name="enter">Enter</string>
 </resources>

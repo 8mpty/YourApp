@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -40,7 +41,7 @@ import java.util.Objects;
 
 public class Nitter extends AppCompatActivity {
 
-    AdblockWebView webView;
+    public static AdblockWebView webView;
     WebSettings webSettings;
     public static String ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36"; // Desktop User Agent
     public static String url = "";
@@ -58,12 +59,10 @@ public class Nitter extends AppCompatActivity {
 
     private static final String PREF_TB = "pref_TB";
     private static final String PREF_INCOG = "pref_INCOG";
-    private static final String PREF_AUTO_TB = "auto_TB";
     public static final String PREF_UA = "UA";
 
     public static  boolean uaChanged;
-
-    boolean incog = false;
+    boolean clearHistory = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,16 +88,17 @@ public class Nitter extends AppCompatActivity {
         pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         editor = pref.edit();
 
+        pref.getBoolean(PREF_INCOG, false);
+
         if (pref.getBoolean(PREF_TB, false)) {
             toolbar.setVisibility(View.GONE);
         }
         else toolbar.setVisibility(View.VISIBLE);
 
-
-        incog = pref.getBoolean(PREF_INCOG, false);
         ua = pref.getString(PREF_UA, ua);
 
         webStuff();
+
     }
 
 
@@ -235,7 +235,7 @@ public class Nitter extends AppCompatActivity {
         webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         webView.setScrollbarFadingEnabled(true);
         webView.setLongClickable(true);
-        webView.clearHistory();
+        clearHistory = true;
         webView.clearCache(true);
         webView.clearFormData();
         webView.clearSslPreferences();
@@ -243,8 +243,8 @@ public class Nitter extends AppCompatActivity {
         webView.setBackgroundColor(0x00000000);
 
         // Default to NOT INCOG , BY RIGHT ;) //
-        webSettings.setAppCacheEnabled(true);
-        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+
+        IncognitoChanger();
 
         webSettings.setBuiltInZoomControls(true);
         webSettings.setSupportZoom(true);
@@ -266,8 +266,6 @@ public class Nitter extends AppCompatActivity {
         webView.loadUrl(url);
 
         // Enable this for scrolling hide toolbar feature //
-        // Long clicking any space with un-hide the toolbar.
-
         //webView.setOnScrollChangeListener(new Scroll());
 
         webView.setOnLongClickListener(v -> {
@@ -280,22 +278,26 @@ public class Nitter extends AppCompatActivity {
         });
     }
 
-    private void IncognitoChanger()
-    {
-        if(!incog){
-            editor.putBoolean(PREF_INCOG, false);
-            editor.commit();
-            webSettings.setAppCacheEnabled(true);
-            webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-            Toast.makeText(this, "NOT INCOG", Toast.LENGTH_SHORT).show();
+    private void IncognitoChanger() {
+        pref.getBoolean(PREF_INCOG, false);
 
-        }
-        else {
+        if(pref.getBoolean(PREF_INCOG, false)) {
             editor.putBoolean(PREF_INCOG, true);
             editor.commit();
             webSettings.setAppCacheEnabled(false);
             webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-            Toast.makeText(this, "IN INCOG", Toast.LENGTH_SHORT).show();
+            //ClearCookies();
+            webView.clearCache(true);
+            webView.clearHistory();
+            webView.clearFormData();
+        }
+        else {
+
+            editor.putBoolean(PREF_INCOG, false);
+            editor.commit();
+            webSettings.setAppCacheEnabled(true);
+            webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+            //ClearCookies();
         }
     }
 
@@ -305,6 +307,12 @@ public class Nitter extends AppCompatActivity {
         @Override
         public void onPageFinished(WebView view, String url)
         {
+            if(clearHistory)
+            {
+                clearHistory = false;
+                webView.clearHistory();
+                //ClearCookies();
+            }
             super.onPageFinished(view, url);
 
             // Remove Sign In Button on YT Music //
@@ -332,6 +340,11 @@ public class Nitter extends AppCompatActivity {
                 videoEnabled = false;
             }
         }
+    }
+
+    public static void ClearCookies(){
+        CookieManager.getInstance().removeAllCookies(null);
+        CookieManager.getInstance().flush();
     }
 
     // JavaScript Injector
@@ -397,6 +410,7 @@ public class Nitter extends AppCompatActivity {
             ((FrameLayout)getWindow().getDecorView()).addView(this.mCustomView, new FrameLayout.LayoutParams(-1, -1));
             getWindow().getDecorView().setSystemUiVisibility(3846 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
+
     }
 
 
@@ -411,13 +425,12 @@ public class Nitter extends AppCompatActivity {
         else
             toolbar.setVisibility(View.VISIBLE);
 
-        if(uaChanged){
-            ua = pref.getString(PREF_UA, ua);
-            webSettings.setUserAgentString(ua);
-            webView.loadUrl(WebLinksActivity.webActURL);
-            webView.reload();
-            uaChanged = false;
-        }
+//        if(uaChanged){
+//            ua = pref.getString(PREF_UA, ua);
+//            webSettings.setUserAgentString(ua);
+//            webView.reload();
+//            uaChanged = false;
+//        }
 
         IncognitoChanger();
         webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
@@ -452,7 +465,6 @@ public class Nitter extends AppCompatActivity {
             onStop();
         }
     }
-
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();

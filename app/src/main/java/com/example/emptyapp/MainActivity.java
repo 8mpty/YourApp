@@ -4,16 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,40 +33,28 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences.Editor editor;
 
     private static final String PREF_SECKEY = "pref_SecKey";
-    private ArrayList<LinkModal>linkModalArrayList;
+    private static final String PREF_RANDKEYS = "pref_RANDKEYS";
+    private View keyboardLayout;
 
-    View keyboardLayout;
-
-    SharedPreferences prevText;
-    SharedPreferences.Editor prevEditor;
-
-    private static final String PREF_TXT = "shar_txt";
-    private static final String TEXT = "pref_txt";
-
-    private String txt;
-
+    private Button[] btn;
+    private ArrayList<String> array = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().setStatusBarColor(getColor(R.color.black));
+        getWindow().setStatusBarColor(getColor(R.color.darker_purple));
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
         pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         editor = pref.edit();
 
-        count = 0;
-
         txtPass = findViewById(R.id.txtpass);
-        Button btnSub = findViewById(R.id.btnSub);
+        txtPass.setShowSoftInputOnFocus(false);
+
         keyboardLayout = findViewById(R.id.lay_keypad);
         keyboardLayout.setVisibility(View.GONE);
-        txtPass.setInputType(InputType.TYPE_CLASS_NUMBER);
-
-        //txtPass.setShowSoftInputOnFocus(true);
-
 
         toolbar = findViewById(R.id.mtoolbar);
         setSupportActionBar(toolbar);
@@ -77,15 +62,43 @@ public class MainActivity extends AppCompatActivity {
 
         toolbar.setVisibility(View.GONE);
 
-        txtPass.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(keyboardLayout.getVisibility() == View.GONE){
-                    keyboardLayout.setVisibility(View.VISIBLE);
-                }
+        txtPass.setOnClickListener(v -> {
+            if(keyboardLayout.getVisibility() == View.GONE){
+                keyboardLayout.setVisibility(View.VISIBLE);
             }
         });
 
+        BtnClick();
+
+        if(pref.getBoolean(PREF_RANDKEYS, false)){
+            RandomBtnNumbers();
+        }
+        else SetNormalBtnNumbers();
+    }
+
+    private void BtnClick(){
+        Button btnBack = (Button) findViewById(R.id.btnBackSpace);
+        btnBack.setOnClickListener(v -> {
+
+            String curTxt = txtPass.getText().toString();
+            int input = curTxt.length();
+            if(input > 0) {
+                txtPass.setText(curTxt.substring(0,input - 1));
+                txtPass.setSelection(txtPass.getText().length());
+            }
+        });
+
+        btnBack.setOnLongClickListener(v -> {
+            String curTxt = txtPass.getText().toString();
+            int input = curTxt.length();
+            if(input > 0) {
+                txtPass.setText(curTxt.substring(0,input - 1));
+                txtPass.setSelection(txtPass.getText().length());
+            }
+            return true;
+        });
+
+        Button btnSub = findViewById(R.id.btnSub);
         btnSub.setOnClickListener(v -> {
             if(TextUtils.isEmpty(txtPass.getText().toString())) {
                 txtPass.setError("Please input code!");
@@ -93,14 +106,26 @@ public class MainActivity extends AppCompatActivity {
             else OpenAct();
         });
 
-        UnHideToolBar();
-        LoadBtnNumbers();
+        Button btnEnt = findViewById(R.id.btnEnt);
+        btnEnt.setOnClickListener(v -> {
+            if(TextUtils.isEmpty(txtPass.getText().toString())) {
+                txtPass.setError("Please input code!");
+            }
+            else OpenAct();
+
+            count++;
+            if (count >= 8) {
+                toolbar.setVisibility(View.VISIBLE);
+                Toast.makeText(MainActivity.this,"UNLOCKED DEVELOPER SETTINGS", Toast.LENGTH_SHORT).show();
+                count = 0;
+            }
+        });
     }
 
+    private void RandomBtnNumbers() {
 
-    private void LoadBtnNumbers(){
-        Button[] btn = new Button[] {
-
+        btn = new Button[] {
+                (Button) findViewById(R.id.btn0),
                 (Button) findViewById(R.id.btn1),
                 (Button) findViewById(R.id.btn2),
                 (Button) findViewById(R.id.btn3),
@@ -112,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 (Button) findViewById(R.id.btn9),
         };
 
-        ArrayList<String> array = new ArrayList<>();
+        array.add("0");
         array.add("1");
         array.add("2");
         array.add("3");
@@ -124,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
         array.add("9");
 
         for(int i = 0; i < btn.length; i++) {
-
             Random rand = new Random();
             String newString = String.valueOf(array.get(rand.nextInt(array.size())));
             btn[i].setText(newString);
@@ -132,40 +156,65 @@ public class MainActivity extends AppCompatActivity {
             array.remove(newString);
             String text = btn[i].getText().toString();
 
-            int finalI = i;
-            btn[i].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.e("BTN","NUMBER = "+ text);
-                    btn[finalI].setOnClickListener(this);
-                    txtPass.setText(text);
-                    txtPass.setSelection(txtPass.getText().length());
-                }
+            btn[i].setOnClickListener(v -> {
+                txtPass.setError(null);
+                String endTxt = txtPass.getText().toString() + text;
+                txtPass.setText(endTxt);
+                txtPass.setSelection(txtPass.getText().length());
             });
         }
     }
 
+    private void SetNormalBtnNumbers() {
+        btn = new Button[] {
+                (Button) findViewById(R.id.btn0),
+                (Button) findViewById(R.id.btn1),
+                (Button) findViewById(R.id.btn2),
+                (Button) findViewById(R.id.btn3),
+                (Button) findViewById(R.id.btn4),
+                (Button) findViewById(R.id.btn5),
+                (Button) findViewById(R.id.btn6),
+                (Button) findViewById(R.id.btn7),
+                (Button) findViewById(R.id.btn8),
+                (Button) findViewById(R.id.btn9),
+        };
+
+        array.add("0");
+        array.add("1");
+        array.add("2");
+        array.add("3");
+        array.add("4");
+        array.add("5");
+        array.add("6");
+        array.add("7");
+        array.add("8");
+        array.add("9");
+
+        for(int i = 0; i < array.size(); i++){
+            for(int j = 0; j < btn.length; j++){
+                String strArr = array.get(i);
+                btn[j].setText(strArr);
+                array.remove(i);
+                btn[j].setOnClickListener(v -> {
+                    txtPass.setError(null);
+                    String endTxtNorm = txtPass.getText().toString() + strArr;
+                    txtPass.setText(endTxtNorm);
+                    txtPass.setSelection(txtPass.getText().length());
+                });
+            }
+        }
+    }
     @Override
     protected void onResume() {
         super.onResume();
         count = 0;
         toolbar.setVisibility(View.GONE);
-        LoadBtnNumbers();
-    }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private void UnHideToolBar() {
-        ImageButton btnSecret = findViewById(R.id.btnSecret);
-        btnSecret.setOnClickListener(v -> {
-            count++;
-            if (count >= 5) {
-                toolbar.setVisibility(View.VISIBLE);
-                Toast.makeText(MainActivity.this,"UNLOCKED DEVELOPER SETTINGS", Toast.LENGTH_SHORT).show();
-                count = 0;
-            }
-        });
+        if(pref.getBoolean(PREF_RANDKEYS, false)){
+            RandomBtnNumbers();
+        }
+        else SetNormalBtnNumbers();
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -209,31 +258,11 @@ public class MainActivity extends AppCompatActivity {
         }
         else txtPass.setError("Invalid Code");
     }
-
     @Override
     public void onBackPressed() {
         if(keyboardLayout.getVisibility() == View.VISIBLE){
             keyboardLayout.setVisibility(View.GONE);
         }
-        else
-        {
-            super.onBackPressed();
-        }
-    }
-
-    private void SaveData(){
-        SharedPreferences sharedPreferences = getSharedPreferences(PREF_TXT, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        editor.putString(PREF_TXT, txtPass.getText().toString());
-        editor.apply();
-    }
-    private void LoadData(){
-        SharedPreferences sharedPreferences = getSharedPreferences(PREF_TXT, MODE_PRIVATE);
-
-        txt = sharedPreferences.getString(PREF_TXT,"");
-    }
-    private void UpdateView(){
-        txtPass.setText(txt);
+        else super.onBackPressed();
     }
 }

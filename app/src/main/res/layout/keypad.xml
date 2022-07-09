@@ -3,123 +3,162 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_weight="1">
+    android:layout_weight="7">
 
 
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="bottom"
-        android:layout_marginBottom="40dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp">
+        android:layout_marginTop="300dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:paddingBottom="30dp">
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/grey">
-            <Button
-                android:id="@+id/btn1"
-                android:layout_width="5pt"
-                android:layout_height="30pt"
-                android:layout_weight="1"
-                android:layout_margin="5pt"
-                android:backgroundTint="@color/purple_500"
-                android:textSize="35sp"
-                android:textColor="@android:color/white">
-            </Button>
-            <Button
-                android:id="@+id/btn2"
-                android:layout_width="5pt"
-                android:layout_height="30pt"
-                android:layout_weight="1"
-                android:layout_margin="5pt"
-                android:backgroundTint="@color/purple_500"
-                android:textSize="35sp"
-                android:textColor="@android:color/white">
-            </Button>
-            <Button
-                android:id="@+id/btn3"
-                android:layout_width="5pt"
-                android:layout_height="30pt"
-                android:layout_weight="1"
-                android:layout_margin="5pt"
-                android:backgroundTint="@color/purple_500"
-                android:textSize="35sp"
-                android:textColor="@android:color/white">
-            </Button>
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/grey">
-            <Button
-                android:id="@+id/btn4"
-                android:layout_width="5pt"
-                android:layout_height="30pt"
-                android:layout_weight="1"
-                android:layout_margin="5pt"
-                android:backgroundTint="@color/purple_500"
-                android:textSize="35sp"
-                android:textColor="@android:color/white">
-            </Button>
-            <Button
-                android:id="@+id/btn5"
-                android:layout_width="5pt"
-                android:layout_height="30pt"
-                android:layout_weight="1"
-                android:layout_margin="5pt"
-                android:backgroundTint="@color/purple_500"
-                android:textSize="35sp"
-                android:textColor="@android:color/white">
-            </Button>
-            <Button
-                android:id="@+id/btn6"
-                android:layout_width="5pt"
-                android:layout_height="30pt"
-                android:layout_weight="1"
-                android:layout_margin="5pt"
-                android:backgroundTint="@color/purple_500"
-                android:textSize="35sp"
-                android:textColor="@android:color/white">
-            </Button>
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/grey">
+            android:layout_height="match_parent">
             <Button
                 android:id="@+id/btn7"
-                android:layout_width="5pt"
-                android:layout_height="30pt"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
                 android:layout_weight="1"
-                android:layout_margin="5pt"
-                android:backgroundTint="@color/purple_500"
-                android:textSize="35sp"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/darker_grey"
+                android:textSize="@dimen/btnNum_textSize"
                 android:textColor="@android:color/white">
             </Button>
             <Button
                 android:id="@+id/btn8"
-                android:layout_width="5pt"
-                android:layout_height="30pt"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
                 android:layout_weight="1"
-                android:layout_margin="5pt"
-                android:backgroundTint="@color/purple_500"
-                android:textSize="35sp"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/darker_grey"
+                android:textSize="@dimen/btnNum_textSize"
                 android:textColor="@android:color/white">
             </Button>
             <Button
                 android:id="@+id/btn9"
-                android:layout_width="5pt"
-                android:layout_height="30pt"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
                 android:layout_weight="1"
-                android:layout_margin="5pt"
-                android:backgroundTint="@color/purple_500"
-                android:textSize="35sp"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/darker_grey"
+                android:textSize="@dimen/btnNum_textSize"
                 android:textColor="@android:color/white">
             </Button>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <Button
+                android:id="@+id/btn4"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/darker_grey"
+                android:textSize="@dimen/btnNum_textSize"
+                android:textColor="@android:color/white">
+            </Button>
+            <Button
+                android:id="@+id/btn5"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/darker_grey"
+                android:textSize="@dimen/btnNum_textSize"
+                android:textColor="@android:color/white">
+            </Button>
+            <Button
+                android:id="@+id/btn6"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/darker_grey"
+                android:textSize="@dimen/btnNum_textSize"
+                android:textColor="@android:color/white">
+            </Button>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <Button
+                android:id="@+id/btn1"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/darker_grey"
+                android:textSize="@dimen/btnNum_textSize"
+                android:textColor="@android:color/white">
+            </Button>
+            <Button
+                android:id="@+id/btn2"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/darker_grey"
+                android:textSize="@dimen/btnNum_textSize"
+                android:textColor="@android:color/white">
+            </Button>
+            <Button
+                android:id="@+id/btn3"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/darker_grey"
+                android:textSize="@dimen/btnNum_textSize"
+                android:textColor="@android:color/white">
+            </Button>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/btnEnt"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/darker_purple"
+                android:textSize="@dimen/btnNum_textSize"
+                android:textColor="@android:color/white"
+                android:text="\u2713">
+
+            </Button>
+            <Button
+                android:id="@+id/btn0"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/darker_grey"
+                android:textSize="@dimen/btnNum_textSize"
+                android:textColor="@android:color/white">
+
+            </Button>
+            <Button
+                android:id="@+id/btnBackSpace"
+                android:layout_width="@dimen/btnNum_width"
+                android:layout_height="@dimen/btnNum_height"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/btnNum_margin"
+                android:backgroundTint="@color/purple_500"
+                android:textSize="@dimen/btnNum_textSize"
+                android:textColor="@android:color/white"
+                android:text="\u232b">
+            </Button>
+
         </TableRow>
 
     </TableLayout>
