@@ -87,7 +87,7 @@ public class Nitter extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-        toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.ic_menu));
+        toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.ic_more_vert_24));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
