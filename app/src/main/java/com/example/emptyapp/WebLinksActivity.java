@@ -247,6 +247,9 @@ public class WebLinksActivity extends AppCompatActivity{
                 .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        linkModalArrayList.add(new LinkModal(et_WebName.getText().toString(), et_WebUrl.getText().toString()));
+                        adapter.notifyItemInserted(linkModalArrayList.size());
+                        saveData();
                         dialog.dismiss();
                     }
                 });
