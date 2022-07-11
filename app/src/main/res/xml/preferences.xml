@@ -12,13 +12,13 @@
         android:entryValues="@array/second">
     </ListPreference>
 
-    <SwitchPreference
-        android:key="pref_INCOG"
-        android:title="Incognito Mode"
-        android:summary="Turning this on will enable incognito mode, switch off to disable.\nPlease *RESTART APP* when changing this."
-        app:iconSpaceReserved="false"
-        android:defaultValue="false">
-    </SwitchPreference>
+<!--    <SwitchPreference-->
+<!--        android:key="pref_INCOG"-->
+<!--        android:title="Incognito Mode"-->
+<!--        android:summary="Turning this on will enable incognito mode, switch off to disable.\nPlease *RESTART APP* when changing this."-->
+<!--        app:iconSpaceReserved="false"-->
+<!--        android:defaultValue="false">-->
+<!--    </SwitchPreference>-->
 
     <CheckBoxPreference
         android:key="pref_TB"
