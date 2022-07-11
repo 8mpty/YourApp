@@ -61,5 +61,6 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.15.2'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.github.xabaras:RecyclerViewSwipeDecorator:1.4'
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
 }

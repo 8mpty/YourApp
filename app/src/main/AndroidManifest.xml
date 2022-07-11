@@ -17,9 +17,6 @@
         android:theme="@style/Theme.EmptyApp"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".SplashScreen"
-            android:exported="true"/>
-        <activity
             android:name=".SettingsActivity"
             android:exported="false" />
         <activity

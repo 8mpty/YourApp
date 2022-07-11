@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private Button[] btn;
     private ArrayList<String> array = new ArrayList<String>();
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,10 +63,11 @@ public class MainActivity extends AppCompatActivity {
 
         toolbar.setVisibility(View.GONE);
 
-        txtPass.setOnClickListener(v -> {
+        txtPass.setOnTouchListener((v, event) -> {
             if(keyboardLayout.getVisibility() == View.GONE){
                 keyboardLayout.setVisibility(View.VISIBLE);
             }
+            return false;
         });
 
         BtnClick();
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void RandomBtnNumbers() {
 
-        btn = new Button[] {
+        btn = new Button[]{
                 (Button) findViewById(R.id.btn0),
                 (Button) findViewById(R.id.btn1),
                 (Button) findViewById(R.id.btn2),
@@ -166,7 +168,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void SetNormalBtnNumbers() {
-        btn = new Button[] {
+
+        btn = new Button[]{
                 (Button) findViewById(R.id.btn0),
                 (Button) findViewById(R.id.btn1),
                 (Button) findViewById(R.id.btn2),

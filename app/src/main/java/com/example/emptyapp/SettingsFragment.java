@@ -18,6 +18,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             if(key.equals(Nitter.PREF_UA)){
                 Nitter.uaChanged = true;
             }
+            if(key.equals("pref_hist")){
+            }
         };
 
         androidx.preference.EditTextPreference editTextPreference = getPreferenceManager().findPreference("pref_SecKey");

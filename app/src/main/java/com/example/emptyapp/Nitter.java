@@ -13,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,6 +23,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -31,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.adblockplus.libadblockplus.android.webview.AdblockWebView;
 
@@ -58,11 +61,14 @@ public class Nitter extends AppCompatActivity {
     SharedPreferences.Editor editor;
 
     private static final String PREF_TB = "pref_TB";
-    private static final String PREF_INCOG = "pref_INCOG";
     public static final String PREF_UA = "UA";
+    private static final String PREF_ADS = "pref_ads";
 
     public static  boolean uaChanged;
-    boolean clearHistory = false;
+
+    EditText urlText;
+
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +76,7 @@ public class Nitter extends AppCompatActivity {
         getWindow().setStatusBarColor(getColor(R.color.black));
         setContentView(R.layout.activity_nitter);
         toolbar = findViewById(R.id.mtoolbar);
+        urlText = findViewById(R.id.urlText);
 
         Adblocker.init(this);
 
@@ -83,12 +90,9 @@ public class Nitter extends AppCompatActivity {
         toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.ic_menu));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        //getSupportActionBar().setHideOnContentScrollEnabled(true);
 
         pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         editor = pref.edit();
-
-        pref.getBoolean(PREF_INCOG, false);
 
         if (pref.getBoolean(PREF_TB, false)) {
             toolbar.setVisibility(View.GONE);
@@ -98,9 +102,7 @@ public class Nitter extends AppCompatActivity {
         ua = pref.getString(PREF_UA, ua);
 
         webStuff();
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -128,6 +130,31 @@ public class Nitter extends AppCompatActivity {
                     webView.reload();
                     Toast.makeText(this, "VIDEO ENABLED", Toast.LENGTH_SHORT).show();
                 }
+                break;
+
+            case R.id.ad_guard:
+                if(!item.isChecked()) {
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putBoolean(PREF_ADS, true);
+                    editor.apply();
+                    webView.reload();
+                }
+                break;
+
+            case R.id.ad_16x:
+                if(!item.isChecked()) {
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putBoolean(PREF_ADS,false);
+                    editor.apply();
+                    webView.reload();
+                }
+                break;
+
+            case R.id.hist:
+                if(item.isChecked()) {
+                    clearHistory(false);
+                }
+                else clearHistory(true);
                 break;
 
             case R.id.chk_ua:
@@ -198,17 +225,19 @@ public class Nitter extends AppCompatActivity {
     }
 
     // When User Scrolls, Toolbar will get hidden and unhidden automatically if reaches the top.
-//    private class Scroll implements View.OnScrollChangeListener {
-//        @Override
-//        public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-//
-//            int move = webView.getScrollY();
-//            if (move >= 5) {
-//                toolbar.setVisibility(View.GONE);
-//            }
-//            else if (move <= 2)toolbar.setVisibility(View.VISIBLE);
-//        }
-//    }
+    private class Scroll implements View.OnScrollChangeListener {
+        @Override
+        public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+
+            int move = webView.getScrollY();
+            if(!pref.getBoolean(PREF_TB,true)){
+                if (move >= 400) {
+                    toolbar.setVisibility(View.GONE);
+                }
+                else if (move == 0) toolbar.setVisibility(View.VISIBLE);
+            }
+        }
+    }
 
     public class LockScreenReceiver extends  BroadcastReceiver
     {
@@ -225,7 +254,7 @@ public class Nitter extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint({"SetJavaScriptEnabled", "ClickableViewAccessibility"})
     private void webStuff()
     {
         webView = findViewById(R.id.webview);
@@ -235,7 +264,6 @@ public class Nitter extends AppCompatActivity {
         webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         webView.setScrollbarFadingEnabled(true);
         webView.setLongClickable(true);
-        clearHistory = true;
         webView.clearCache(true);
         webView.clearFormData();
         webView.clearSslPreferences();
@@ -244,7 +272,8 @@ public class Nitter extends AppCompatActivity {
 
         // Default to NOT INCOG , BY RIGHT ;) //
 
-        IncognitoChanger();
+        webSettings.setAppCacheEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 
         webSettings.setBuiltInZoomControls(true);
         webSettings.setSupportZoom(true);
@@ -263,10 +292,9 @@ public class Nitter extends AppCompatActivity {
         webView.setWebChromeClient(new MyChrome());
         webView.setWebViewClient(new MyWebViewClient());
 
-        webView.loadUrl(url);
+        LoadURL(url);
 
-        // Enable this for scrolling hide toolbar feature //
-        //webView.setOnScrollChangeListener(new Scroll());
+        webView.setOnScrollChangeListener(new Scroll());
 
         webView.setOnLongClickListener(v -> {
             if (toolbar.getVisibility() != View.VISIBLE) {
@@ -278,26 +306,30 @@ public class Nitter extends AppCompatActivity {
         });
     }
 
-    private void IncognitoChanger() {
-        pref.getBoolean(PREF_INCOG, false);
+    private void LoadURL(String actURL){
+        boolean matchURL = Patterns.WEB_URL.matcher(actURL).matches();
 
-        if(pref.getBoolean(PREF_INCOG, false)) {
-            editor.putBoolean(PREF_INCOG, true);
-            editor.commit();
-            webSettings.setAppCacheEnabled(false);
-            webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-            //ClearCookies();
+        if(matchURL){
+            webView.loadUrl(actURL);
+        }
+        else {
+            webView.loadUrl("https://duckduckgo.com/?q=" + actURL);
+        }
+    }
+
+    private void clearHistory(Boolean clearHistory) {
+        String curUrl = webView.getUrl();
+
+        if(clearHistory){
+            ClearCookies();
+
             webView.clearCache(true);
             webView.clearHistory();
             webView.clearFormData();
-        }
-        else {
 
-            editor.putBoolean(PREF_INCOG, false);
-            editor.commit();
-            webSettings.setAppCacheEnabled(true);
-            webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-            //ClearCookies();
+            Toast.makeText(this, "Cleared History", Toast.LENGTH_SHORT).show();
+
+            webView.loadUrl(curUrl);
         }
     }
 
@@ -307,44 +339,59 @@ public class Nitter extends AppCompatActivity {
         @Override
         public void onPageFinished(WebView view, String url)
         {
-            if(clearHistory)
-            {
-                clearHistory = false;
-                webView.clearHistory();
-                //ClearCookies();
-            }
             super.onPageFinished(view, url);
 
-            // Remove Sign In Button on YT Music //
-            injectScriptFile(view , "scripts/rm_signIN.js");
+            urlText.setText(webView.getUrl());
 
-            // Remove YT or YT Music Video ads by increasing speed of video ads by 16x (Max). //
-            //injectScriptFile(view , "scripts/yt_adblocker.js");
+            ScriptsInjection(view);
+        }
 
-            // Remove ALL YT or YT Music Ads using AdGuard //
-            injectScriptFile(view , "scripts/adguard_yt.js");
-
-            // Bypass Age Restriction Videos On Youtube //
-            injectScriptFile(view , "scripts/agerestricbypass.js");
-
-            // Allow Background Playback for YT Music but not Youtube.com
-            // TODO FIX BACKGROUND AUDIO
-            injectScriptFile(view , "scripts/bk.js");
-
-            injectScriptFile(view , "scripts/mute.js");
-
-            if(!videoEnabled)
-            {
-                // Remove YT video on YTMusic but will not skip ads.
-                injectScriptFile(view , "scripts/videoremover.js");
-                videoEnabled = false;
-            }
+        @Override
+        public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
+            super.doUpdateVisitedHistory(view, url, isReload);
+            urlText.setText(webView.getUrl());
         }
     }
 
     public static void ClearCookies(){
         CookieManager.getInstance().removeAllCookies(null);
         CookieManager.getInstance().flush();
+    }
+
+    private void ScriptsInjection(WebView view){
+        pref.getBoolean(PREF_ADS, true);
+
+        // Remove Sign In Button on YT Music //
+        injectScriptFile(view , "scripts/rm_signIN.js");
+
+        if(pref.getBoolean(PREF_ADS,true)){
+            // Remove ALL YT or YT Music Ads using AdGuard //
+            injectScriptFile(view , "scripts/adguard_yt.js");
+            Toast.makeText(this, "ADGUARD",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            // Remove YT or YT Music Video ads by increasing speed of video ads by 16x (Max). //
+            injectScriptFile(view , "scripts/yt_adblocker.js");
+            Toast.makeText(this, "16x",Toast.LENGTH_SHORT).show();
+        }
+
+        // Bypass Age Restriction Videos On Youtube //
+        injectScriptFile(view , "scripts/agerestricbypass.js");
+
+        // Allow Background Playback for YT Music but not Youtube.com
+        // TODO FIX BACKGROUND AUDIO
+        injectScriptFile(view , "scripts/bk.js");
+
+        injectScriptFile(view , "scripts/mute.js");
+
+        if(!videoEnabled) {
+            injectScriptFile(view , "scripts/videoremover.js");
+            videoEnabled = false;
+        }
+
+        if(webView.getUrl().contains("https://music.youtube.com")){
+            //injectScriptFile(view,"scripts/yt_music_reload.js");
+        }
     }
 
     // JavaScript Injector
@@ -405,19 +452,18 @@ public class Nitter extends AppCompatActivity {
             this.mCustomView = paramView;
             this.mOriginalSystemUiVisibility = getWindow().getDecorView().getSystemUiVisibility();
             this.mOriginalOrientation = getRequestedOrientation();
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
             this.mCustomViewCallback = paramCustomViewCallback;
             ((FrameLayout)getWindow().getDecorView()).addView(this.mCustomView, new FrameLayout.LayoutParams(-1, -1));
             getWindow().getDecorView().setSystemUiVisibility(3846 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
-
     }
-
 
     private void SaveUAData() {
         editor.putString(PREF_UA, ua);
         editor.commit();
     }
+
     @Override
     protected void onResume() {
         if (pref.getBoolean(PREF_TB, false))
@@ -425,14 +471,6 @@ public class Nitter extends AppCompatActivity {
         else
             toolbar.setVisibility(View.VISIBLE);
 
-//        if(uaChanged){
-//            ua = pref.getString(PREF_UA, ua);
-//            webSettings.setUserAgentString(ua);
-//            webView.reload();
-//            uaChanged = false;
-//        }
-
-        IncognitoChanger();
         webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
         webView.onResume();
         super.onResume();
