@@ -94,9 +94,11 @@ public class WebLinksActivity extends AppCompatActivity{
                     break;
 
                 case ItemTouchHelper.LEFT:
-                    SetNewLink();
+                    EditData(pos);
+                    et_WebName.setText(linkModalArrayList.get(pos).getUrlName());
+                    et_WebUrl.setText(linkModalArrayList.get(pos).getUrlLink());
                     linkModalArrayList.remove(pos);
-                    rv.getAdapter().notifyItemRemoved(pos);
+                    rv.getAdapter().notifyDataSetChanged();
                     break;
             }
             saveData();
@@ -186,8 +188,48 @@ public class WebLinksActivity extends AppCompatActivity{
         et_WebName = view.findViewById(R.id.et_WebName);
         et_WebUrl = view.findViewById(R.id.et_WebUrl);
 
+        et_WebUrl.setText("https://");
+        et_WebUrl.setSelection(et_WebUrl.getText().length());
+
         alertDialogBuilder.setView(view)
                 .setTitle("Add Custom Site")
+                .setPositiveButton("OK" , new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(et_WebName.getText().toString().trim().equals("") | et_WebUrl.getText().toString().trim().equals("")){
+                            Toast.makeText(WebLinksActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            linkModalArrayList.add(new LinkModal(et_WebName.getText().toString(), et_WebUrl.getText().toString()));
+                            adapter.notifyItemInserted(linkModalArrayList.size());
+                            saveData();
+                        }
+                        alertDialog.show();
+                    }
+                })
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        alertDialog = alertDialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawableResource(R.color.darker_grey);
+        alertDialog.show();
+    }
+
+    private void EditData(int pos){
+        AlertDialog.Builder alertDialogBuilder;
+        alertDialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.newlinkalert, null);
+
+        et_WebName = view.findViewById(R.id.et_WebName);
+        et_WebUrl = view.findViewById(R.id.et_WebUrl);
+
+        alertDialogBuilder.setView(view)
+                .setTitle("Edit " + linkModalArrayList.get(pos).getUrlName() + " site")
                 .setPositiveButton("OK" , new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
