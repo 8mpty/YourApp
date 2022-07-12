@@ -40,7 +40,8 @@
         android:key="pref_SecKey"
         android:title="Secret Key"
         android:summary="Used to unlock app"
-        app:iconSpaceReserved="false">
+        app:iconSpaceReserved="false"
+        android:defaultValue="1234">
     </EditTextPreference>
 
 </PreferenceScreen>

@@ -2,6 +2,7 @@ package com.example.emptyapp;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,14 +11,18 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Patterns;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -25,6 +30,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -66,17 +73,20 @@ public class Nitter extends AppCompatActivity {
 
     public static  boolean uaChanged;
 
-    EditText urlText;
+    private EditText urlText;
+    private ProgressBar pb;
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setStatusBarColor(getColor(R.color.black));
+        getWindow().setStatusBarColor(getColor(R.color.darker_purple));
         setContentView(R.layout.activity_nitter);
         toolbar = findViewById(R.id.mtoolbar);
         urlText = findViewById(R.id.urlText);
+        swipeRefreshLayout = findViewById(R.id.lay_swipe_refresh);
+        pb = findViewById(R.id.progress_bar);
 
         Adblocker.init(this);
 
@@ -94,14 +104,43 @@ public class Nitter extends AppCompatActivity {
         pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         editor = pref.edit();
 
-        if (pref.getBoolean(PREF_TB, false)) {
-            toolbar.setVisibility(View.GONE);
-        }
-        else toolbar.setVisibility(View.VISIBLE);
+        toolbarHide();
 
         ua = pref.getString(PREF_UA, ua);
 
+        pref.getBoolean("pref_webSearch", false);
+
         webStuff();
+
+        urlText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                if(pref.getBoolean("pref_webSearch", true)) {
+                    if(actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE) {
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(urlText.getWindowToken(), 0);
+                        LoadURL(urlText.getText().toString());
+                    }
+                }
+                else {
+                    //urlText.setError("Non-Editable!");
+                }
+                return false;
+            }
+        });
+
+        pb.getProgressDrawable().setColorFilter(Color.rgb(255,255,255), android.graphics.PorterDuff.Mode.SRC_IN);
+    }
+
+    private void toolbarHide() {
+        if (pref.getBoolean(PREF_TB, false)) {
+            toolbar.setVisibility(View.GONE);
+        }
+        else{
+            toolbar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -198,7 +237,6 @@ public class Nitter extends AppCompatActivity {
     }
     public void UaCustomDialog()
     {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(Nitter.this)
                 .setTitle("Change User Agent")
                 .setSingleChoiceItems(values, -1, (dialog, item) -> {
@@ -231,10 +269,10 @@ public class Nitter extends AppCompatActivity {
 
             int move = webView.getScrollY();
             if(!pref.getBoolean(PREF_TB,true)){
-                if (move >= 400) {
+                if (move >= 300) {
                     toolbar.setVisibility(View.GONE);
                 }
-                else if (move == 0) toolbar.setVisibility(View.VISIBLE);
+                else if (move <= 50) toolbar.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -270,8 +308,6 @@ public class Nitter extends AppCompatActivity {
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         webView.setBackgroundColor(0x00000000);
 
-        // Default to NOT INCOG , BY RIGHT ;) //
-
         webSettings.setAppCacheEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 
@@ -303,6 +339,14 @@ public class Nitter extends AppCompatActivity {
                 editor.commit();
             }
             return false;
+        });
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
+
+            @Override
+            public void onRefresh() {
+                webView.reload();
+            }
         });
     }
 
@@ -337,6 +381,12 @@ public class Nitter extends AppCompatActivity {
     private class MyWebViewClient extends WebViewClient
     {
         @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+            pb.setVisibility(View.VISIBLE);
+        }
+
+        @Override
         public void onPageFinished(WebView view, String url)
         {
             super.onPageFinished(view, url);
@@ -344,6 +394,9 @@ public class Nitter extends AppCompatActivity {
             urlText.setText(webView.getUrl());
 
             ScriptsInjection(view);
+
+            swipeRefreshLayout.setRefreshing(false);
+            pb.setVisibility(View.INVISIBLE);
         }
 
         @Override
@@ -367,12 +420,10 @@ public class Nitter extends AppCompatActivity {
         if(pref.getBoolean(PREF_ADS,true)){
             // Remove ALL YT or YT Music Ads using AdGuard //
             injectScriptFile(view , "scripts/adguard_yt.js");
-            Toast.makeText(this, "ADGUARD",Toast.LENGTH_SHORT).show();
         }
         else {
             // Remove YT or YT Music Video ads by increasing speed of video ads by 16x (Max). //
             injectScriptFile(view , "scripts/yt_adblocker.js");
-            Toast.makeText(this, "16x",Toast.LENGTH_SHORT).show();
         }
 
         // Bypass Age Restriction Videos On Youtube //
@@ -457,6 +508,12 @@ public class Nitter extends AppCompatActivity {
             ((FrameLayout)getWindow().getDecorView()).addView(this.mCustomView, new FrameLayout.LayoutParams(-1, -1));
             getWindow().getDecorView().setSystemUiVisibility(3846 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
+
+        @Override
+        public void onProgressChanged(WebView view, int newProgress) {
+            super.onProgressChanged(view, newProgress);
+            pb.setProgress(newProgress);
+        }
     }
 
     private void SaveUAData() {
@@ -466,11 +523,7 @@ public class Nitter extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        if (pref.getBoolean(PREF_TB, false))
-            toolbar.setVisibility(View.GONE);
-        else
-            toolbar.setVisibility(View.VISIBLE);
-
+        toolbarHide();
         webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
         webView.onResume();
         super.onResume();
@@ -505,7 +558,7 @@ public class Nitter extends AppCompatActivity {
     }
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        super.onBackPressed();
         return super.onSupportNavigateUp();
     }
 }

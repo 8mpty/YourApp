@@ -10,11 +10,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -127,6 +129,25 @@ public class WebLinksActivity extends AppCompatActivity{
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.mainmenu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.main_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+
         return true;
     }
 
@@ -153,6 +174,28 @@ public class WebLinksActivity extends AppCompatActivity{
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId())
         {
+            case R.id.main_addLink: {
+                if (!item.isChecked()) {
+                    SetNewLink();
+                }
+            }
+            break;
+
+            case R.id.main_webOpen:{
+                if (!item.isChecked()) {
+                    Nitter.url = "https://duckduckgo.com";
+                    startActivity(new Intent(WebLinksActivity.this, Nitter.class));
+                    editor.putBoolean("pref_webSearch",true);
+                    editor.apply();
+                }
+            }
+            break;
+
+            case R.id.main_Info:{
+
+            }
+            break;
+
             case R.id.main_exit: {
                 finish();
             }
@@ -161,13 +204,6 @@ public class WebLinksActivity extends AppCompatActivity{
             case R.id.btnSet: {
                 if(!item.isChecked()) {
                     startActivity(new Intent(WebLinksActivity.this, SettingsActivity.class));
-                }
-            }
-            break;
-
-            case R.id.main_addLink: {
-                if (!item.isChecked()) {
-                    SetNewLink();
                 }
             }
             break;

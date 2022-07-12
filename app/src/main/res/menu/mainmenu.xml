@@ -1,20 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+<menu
+
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+
     <item
-        android:title="LinkNewWeb"
+        android:title="Add Link"
         android:id="@+id/main_addLink"
         android:icon="@drawable/ic_add_link"
-        app:showAsAction="always"
-        >
+        app:showAsAction="always">
     </item>
+
+    <item
+        android:id="@+id/main_search"
+        android:icon="@drawable/ic_search"
+        android:title="Search"
+        app:showAsAction="collapseActionView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView">
+
+    </item>
+
+    <item
+        android:title="Open Web"
+        android:id="@+id/main_webOpen"
+        android:icon="@drawable/ic_globe"
+        app:showAsAction="always">
+    </item>
+
+
     <item
         android:title="Info"
         android:id="@+id/main_Info"
         android:icon="@drawable/ic_info"
-        app:showAsAction="always">
+        app:showAsAction="never">
     </item>
+
     <item
         android:id="@+id/btnSet"
         android:title="Settings"/>
@@ -22,4 +43,5 @@
         android:id="@+id/main_exit"
         android:title="Exit"
         />
+
 </menu>

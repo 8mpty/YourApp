@@ -7,25 +7,34 @@ import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
-public class WebLinkAdapter extends RecyclerView.Adapter<WebLinkAdapter.ViewHolder> {
+public class WebLinkAdapter extends RecyclerView.Adapter<WebLinkAdapter.ViewHolder> implements Filterable {
 
     private final ArrayList<LinkModal> linkModalArrayList;
+    private final ArrayList<LinkModal> fullList;
     private final Context context;
-    private AlertDialog alertDialog;
+
+    SharedPreferences pref;
+    SharedPreferences.Editor editor;
 
     public WebLinkAdapter(ArrayList<LinkModal> linkModalArrayList, Context context) {
         this.linkModalArrayList = linkModalArrayList;
         this.context = context;
+        fullList = new ArrayList<>(linkModalArrayList);
+
+        pref = PreferenceManager.getDefaultSharedPreferences(context);
+        editor = pref.edit();
     }
 
     @NonNull
@@ -38,28 +47,20 @@ public class WebLinkAdapter extends RecyclerView.Adapter<WebLinkAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull WebLinkAdapter.ViewHolder holder, int position) {
+
         LinkModal modal = linkModalArrayList.get(position);
         holder.urlNameTV.setText(modal.getUrlName());
         holder.urlLinkTV.setText(modal.getUrlLink());
-        //Picasso.get().load(modal.getUrlIcon()).into(holder.urlIconTV);
 
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
             Nitter.url = modal.getUrlLink();
             Intent intent = new Intent(context, Nitter.class);
             v.getContext().startActivity(intent);
+
+            editor.putBoolean("pref_webSearch",false);
+            editor.apply();
         });
-
-//        holder.itemView.setOnLongClickListener(view -> {
-//            AlertDialog.Builder builder = new AlertDialog.Builder(context)
-//                    .setTitle("Delete Custom Site")
-//                    .setPositiveButton("Ok", (dialog, which) -> DelItem(position))
-//                    .setNegativeButton("Cancel", (dialog, which) -> alertDialog.dismiss());
-//            alertDialog = builder.create();
-//            alertDialog.show();
-//            return true;
-//        });
-
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -93,7 +94,42 @@ public class WebLinkAdapter extends RecyclerView.Adapter<WebLinkAdapter.ViewHold
 
             urlNameTV = itemView.findViewById(R.id.txt_webTitle);
             urlLinkTV = itemView.findViewById(R.id.txt_webLink);
-            //urlIconTV = itemView.findViewById(R.id.webIcon);
         }
     }
+
+    @Override
+    public Filter getFilter() {
+        return filter;
+    }
+
+    private Filter filter = new Filter(){
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            ArrayList<LinkModal> filteredList = new ArrayList<>();
+
+            if(constraint == null || constraint.length() == 0) {
+                filteredList.addAll(fullList);
+            }else {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+
+                for(LinkModal linkModal : fullList){
+                    if(linkModal.getUrlLink().toLowerCase().contains(filterPattern)){
+                        filteredList.add(linkModal);
+                    }
+                }
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            linkModalArrayList.clear();
+            linkModalArrayList.addAll((ArrayList) results.values);
+            notifyDataSetChanged();
+        }
+    };
 }
