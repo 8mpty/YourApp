@@ -8,8 +8,17 @@
         android:title="User Agent"
         android:summary="%s"
         app:iconSpaceReserved="false"
-        android:entries="@array/first"
-        android:entryValues="@array/second">
+        android:entries="@array/entry_Entries_UA"
+        android:entryValues="@array/entry_Values_UA">
+    </ListPreference>
+
+    <ListPreference
+        android:key="pref_def_url"
+        android:title="Choose Default Search URL"
+        android:summary="%s"
+        app:iconSpaceReserved="false"
+        android:entries="@array/entry_Entries_URL"
+        android:entryValues="@array/entry_Values_URL">
     </ListPreference>
 
     <SwitchPreference

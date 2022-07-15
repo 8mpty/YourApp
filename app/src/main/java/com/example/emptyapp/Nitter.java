@@ -71,6 +71,9 @@ public class Nitter extends AppCompatActivity {
     private static final String PREF_ADS = "pref_ads";
     private static final String PREF_AUTOTB = "pref_AUTOTB";
     public static final String PREF_INCOG = "pref_INCOG";
+    public static final String PREF_DEF_URL = "pref_def_url";
+
+    String def_Url;
 
 
     public static boolean uaChanged;
@@ -106,6 +109,7 @@ public class Nitter extends AppCompatActivity {
         toolbarHide();
 
         ua = pref.getString(PREF_UA, ua);
+        def_Url = pref.getString(PREF_DEF_URL, def_Url);
 
         pref.getBoolean("pref_webSearch", false);
 
@@ -351,7 +355,12 @@ public class Nitter extends AppCompatActivity {
             webView.loadUrl(actURL);
         }
         else {
-            webView.loadUrl("https://start.duckduckgo.com/?q=" + actURL);
+            if(def_Url.contains("google.com") || def_Url.contains("bing.com")){
+                webView.loadUrl(def_Url + "/search?q=" + actURL);
+            }
+            else if(def_Url.contains("duckduckgo.com")){
+                webView.loadUrl(def_Url + "/?q=" + actURL);
+            }
         }
     }
 

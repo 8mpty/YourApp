@@ -50,6 +50,10 @@ public class WebLinksActivity extends AppCompatActivity{
 
     private TextInputEditText et_WebName, et_WebUrl;
 
+    public static final String PREF_DEF_URL = "pref_def_url";
+
+    String def_Url;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +70,8 @@ public class WebLinksActivity extends AppCompatActivity{
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(true);
         getSupportActionBar().setTitle("WebApps");
+
+        def_Url = pref.getString(PREF_DEF_URL, def_Url);
 
         loadData();
         BuildRecyclerView();
@@ -184,7 +190,8 @@ public class WebLinksActivity extends AppCompatActivity{
 
             case R.id.main_webOpen:{
                 if (!item.isChecked()) {
-                    Nitter.url = "https://start.duckduckgo.com";
+                    def_Url = pref.getString(PREF_DEF_URL, def_Url);
+                    Nitter.url = def_Url;
                     editor.putBoolean("pref_webSearch",true);
                     editor.apply();
                     startActivity(new Intent(WebLinksActivity.this, Nitter.class));
