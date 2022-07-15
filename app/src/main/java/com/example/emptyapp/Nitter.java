@@ -40,7 +40,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.adblockplus.libadblockplus.android.webview.AdblockWebView;
 
@@ -70,22 +69,22 @@ public class Nitter extends AppCompatActivity {
     private static final String PREF_TB = "pref_TB";
     public static final String PREF_UA = "UA";
     private static final String PREF_ADS = "pref_ads";
+    private static final String PREF_AUTOTB = "pref_AUTOTB";
+    public static final String PREF_INCOG = "pref_INCOG";
 
-    public static  boolean uaChanged;
+
+    public static boolean uaChanged;
 
     private EditText urlText;
     private ProgressBar pb;
 
-    private SwipeRefreshLayout swipeRefreshLayout;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setStatusBarColor(getColor(R.color.darker_purple));
+        getWindow().setStatusBarColor(getColor(R.color.black));
         setContentView(R.layout.activity_nitter);
         toolbar = findViewById(R.id.mtoolbar);
         urlText = findViewById(R.id.urlText);
-        swipeRefreshLayout = findViewById(R.id.lay_swipe_refresh);
         pb = findViewById(R.id.progress_bar);
 
         Adblocker.init(this);
@@ -113,24 +112,19 @@ public class Nitter extends AppCompatActivity {
         webStuff();
 
         urlText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-
                 if(pref.getBoolean("pref_webSearch", true)) {
+                    urlText.setSelection(urlText.getText().length());
                     if(actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE) {
                         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(urlText.getWindowToken(), 0);
                         LoadURL(urlText.getText().toString());
                     }
                 }
-                else {
-                    //urlText.setError("Non-Editable!");
-                }
                 return false;
             }
         });
-
         pb.getProgressDrawable().setColorFilter(Color.rgb(255,255,255), android.graphics.PorterDuff.Mode.SRC_IN);
     }
 
@@ -209,6 +203,7 @@ public class Nitter extends AppCompatActivity {
                     editor.commit();
                 }
                 break;
+
             case R.id.menu_set:
                 if(!item.isChecked()) {
                     startActivity(new Intent(Nitter.this, SettingsActivity.class));
@@ -267,12 +262,14 @@ public class Nitter extends AppCompatActivity {
         @Override
         public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
 
-            int move = webView.getScrollY();
-            if(!pref.getBoolean(PREF_TB,true)){
-                if (move >= 300) {
-                    toolbar.setVisibility(View.GONE);
+            if(pref.getBoolean(PREF_AUTOTB, false)) {
+                int move = webView.getScrollY();
+                if(!pref.getBoolean(PREF_TB,true)){
+                    if (move >= 300) {
+                        toolbar.setVisibility(View.GONE);
+                    }
+                    else if (move <= 50) toolbar.setVisibility(View.VISIBLE);
                 }
-                else if (move <= 50) toolbar.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -341,24 +338,38 @@ public class Nitter extends AppCompatActivity {
             return false;
         });
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
-
-            @Override
-            public void onRefresh() {
-                webView.reload();
-            }
-        });
+        if(pref.getBoolean(PREF_INCOG, false)){
+            InCognitoMode();
+        }
     }
 
     private void LoadURL(String actURL){
+
         boolean matchURL = Patterns.WEB_URL.matcher(actURL).matches();
 
         if(matchURL){
             webView.loadUrl(actURL);
         }
         else {
-            webView.loadUrl("https://duckduckgo.com/?q=" + actURL);
+            webView.loadUrl("https://start.duckduckgo.com/?q=" + actURL);
         }
+    }
+
+    private void InCognitoMode(){
+        //Make sure No cookies are created
+        CookieManager.getInstance().setAcceptCookie(false);
+
+        //Make sure no caching is done
+        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.getSettings().setAppCacheEnabled(false);
+        //webView.clearHistory();
+        webView.clearCache(true);
+
+
+        //Make sure no autofill for Forms/ user-name password happens for the app
+        webView.clearFormData();
+        webView.getSettings().setSavePassword(false);
+        webView.getSettings().setSaveFormData(false);
     }
 
     private void clearHistory(Boolean clearHistory) {
@@ -395,7 +406,6 @@ public class Nitter extends AppCompatActivity {
 
             ScriptsInjection(view);
 
-            swipeRefreshLayout.setRefreshing(false);
             pb.setVisibility(View.INVISIBLE);
         }
 
@@ -430,10 +440,12 @@ public class Nitter extends AppCompatActivity {
         injectScriptFile(view , "scripts/agerestricbypass.js");
 
         // Allow Background Playback for YT Music but not Youtube.com
-        // TODO FIX BACKGROUND AUDIO
+        // TODO WORKS SOMETIMES NOW
         injectScriptFile(view , "scripts/bk.js");
 
         injectScriptFile(view , "scripts/mute.js");
+
+        injectScriptFile(view , "scripts/adguard_extra.js");
 
         if(!videoEnabled) {
             injectScriptFile(view , "scripts/videoremover.js");

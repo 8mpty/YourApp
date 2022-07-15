@@ -17,10 +17,13 @@
         android:theme="@style/Theme.EmptyApp"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".WebLinksActivity"
+            android:exported="false" />
+        <activity
             android:name=".SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".WebLinksActivity"
+            android:name=".MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
@@ -28,7 +31,7 @@
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".LockScreenManager"
             android:configChanges="orientation|screenSize"
             android:exported="true">
             <intent-filter>

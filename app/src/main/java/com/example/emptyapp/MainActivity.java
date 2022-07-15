@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String PREF_SECKEY = "pref_SecKey";
     private static final String PREF_RANDKEYS = "pref_RANDKEYS";
+
     private View keyboardLayout;
 
     private Button[] btn;
@@ -229,16 +230,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.main_exit: {
-                finish();
-            }
-            break;
 
             case R.id.btnSet:{
                 if(!item.isChecked()) {
                     startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 }
             }
+            break;
             default:
                 return super.onOptionsItemSelected(item);
         }

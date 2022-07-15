@@ -1,3 +1,13 @@
+// ==UserScript==
+// @name YouTube Music - Disable are you sure dialog
+// @description Simply disables the window.beforeunload handler by hooking the handler
+// @namespace http://www.jackdye.co.uk/
+// @match        *://music.youtube.com/*
+// @license MIT
+// @grant none
+// @run-at document-start
+// @version 1.1
+// ==/UserScript==
 var placeToReplace;
 if (window.EventTarget && EventTarget.prototype.addEventListener) {
   placeToReplace = EventTarget;

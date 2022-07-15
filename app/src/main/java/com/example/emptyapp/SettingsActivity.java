@@ -31,7 +31,6 @@ public class SettingsActivity extends AppCompatActivity {
                     .add(R.id.set_container, new SettingsFragment())
                     .commit();
         }
-
     }
 
     @Override

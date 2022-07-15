@@ -49,6 +49,7 @@ public class WebLinksActivity extends AppCompatActivity{
     private ArrayList<LinkModal> linkModalArrayList;
 
     private TextInputEditText et_WebName, et_WebUrl;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,21 +184,11 @@ public class WebLinksActivity extends AppCompatActivity{
 
             case R.id.main_webOpen:{
                 if (!item.isChecked()) {
-                    Nitter.url = "https://duckduckgo.com";
-                    startActivity(new Intent(WebLinksActivity.this, Nitter.class));
+                    Nitter.url = "https://start.duckduckgo.com";
                     editor.putBoolean("pref_webSearch",true);
                     editor.apply();
+                    startActivity(new Intent(WebLinksActivity.this, Nitter.class));
                 }
-            }
-            break;
-
-            case R.id.main_Info:{
-
-            }
-            break;
-
-            case R.id.main_exit: {
-                finish();
             }
             break;
 

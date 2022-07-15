@@ -29,19 +29,15 @@
     </item>
 
 
-    <item
-        android:title="Info"
-        android:id="@+id/main_Info"
-        android:icon="@drawable/ic_info"
-        app:showAsAction="never">
-    </item>
+<!--    <item-->
+<!--        android:title="Info"-->
+<!--        android:id="@+id/main_Info"-->
+<!--        android:icon="@drawable/ic_info"-->
+<!--        app:showAsAction="never">-->
+<!--    </item>-->
 
     <item
         android:id="@+id/btnSet"
         android:title="Settings"/>
-    <item
-        android:id="@+id/main_exit"
-        android:title="Exit"
-        />
 
 </menu>
