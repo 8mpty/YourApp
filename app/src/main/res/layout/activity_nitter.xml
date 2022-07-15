@@ -29,8 +29,10 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/lay_textInput"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-        android:layout_width="280dp"
+        android:layout_width="235dp"
         android:layout_height="50dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="60dp"
         android:hint="URL"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="true"

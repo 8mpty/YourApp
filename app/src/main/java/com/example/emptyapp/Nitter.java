@@ -154,6 +154,12 @@ public class Nitter extends AppCompatActivity {
 
         switch (item.getItemId())
         {
+            case R.id.menu_refresh:
+                if(!item.isChecked()){
+                    webView.reload();
+                }
+                break;
+
             case R.id.chk_vid:
                 if(item.isChecked()) {
                     item.setChecked(false);
