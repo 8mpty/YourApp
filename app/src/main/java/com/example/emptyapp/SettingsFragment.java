@@ -1,6 +1,8 @@
 package com.example.emptyapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 
@@ -16,9 +18,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         addPreferencesFromResource(R.xml.preferences);
         AlertDialog alertDialog;
 
+
         preferenceChangeListener = (sharedPreferences, key) -> {
             if(key.equals(Nitter.PREF_UA)){
                 Nitter.uaChanged = true;
+            }
+            if(key.equals("pref_UNINSTALL")){
+                Intent intent = new Intent(Intent.ACTION_DELETE);
+                intent.setData(Uri.parse("package:com.example.emptyapp"));
+                startActivity(intent);
             }
         };
 

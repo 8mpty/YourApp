@@ -264,6 +264,8 @@ public class MainActivity extends AppCompatActivity {
         if(keyboardLayout.getVisibility() == View.VISIBLE){
             keyboardLayout.setVisibility(View.GONE);
         }
-        else super.onBackPressed();
+        else {
+            super.onBackPressed();
+        }
     }
 }

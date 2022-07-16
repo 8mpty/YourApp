@@ -17,6 +17,7 @@ public class LockScreenManager extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
         pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         editor = pref.edit();
 
@@ -26,5 +27,8 @@ public class LockScreenManager extends AppCompatActivity {
         else{
             startActivity(new Intent(this, WebLinksActivity.class));
         }
+
+        finish();
     }
+
 }

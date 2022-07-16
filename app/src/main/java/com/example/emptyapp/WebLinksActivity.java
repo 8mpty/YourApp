@@ -362,5 +362,12 @@ public class WebLinksActivity extends AppCompatActivity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }
