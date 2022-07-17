@@ -19,9 +19,11 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".WebLinksActivity"
+            android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
             android:name=".SettingsActivity"
+            android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

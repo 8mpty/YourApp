@@ -12,7 +12,6 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
@@ -91,8 +90,6 @@ public class Nitter extends AppCompatActivity {
         toolbar = findViewById(R.id.mtoolbar);
         urlText = findViewById(R.id.urlText);
         pb = findViewById(R.id.progress_bar);
-
-        //Adblocker.init(this);
 
         lockScreenReceiver = new LockScreenReceiver();
         IntentFilter lockFilter = new IntentFilter();
@@ -594,12 +591,6 @@ public class Nitter extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if(pref.getBoolean(PREF_SERVICE, false) &&
-                pref.getBoolean("pref_DEV",false)){
-            stopService();
-        }
-
         webView.destroy();
         finish();
     }
