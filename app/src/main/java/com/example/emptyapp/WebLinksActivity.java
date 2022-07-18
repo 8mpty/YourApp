@@ -229,18 +229,7 @@ public class WebLinksActivity extends AppCompatActivity{
                 .setTitle("Add Custom Site")
                 .setPositiveButton("OK" , new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(et_WebName.getText().toString().trim().equals("") | et_WebUrl.getText().toString().trim().equals("")){
-                            Toast.makeText(WebLinksActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            linkModalArrayList.add(new LinkModal(et_WebName.getText().toString(), et_WebUrl.getText().toString()));
-                            adapter.notifyItemInserted(linkModalArrayList.size());
-                            saveData();
-                        }
-                        alertDialog.show();
-                    }
-                })
+                    public void onClick(DialogInterface dialog, int which) {}})
                 .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -251,6 +240,32 @@ public class WebLinksActivity extends AppCompatActivity{
         alertDialog = alertDialogBuilder.create();
         alertDialog.getWindow().setBackgroundDrawableResource(R.color.darker_grey);
         alertDialog.show();
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean wantToClose = false;
+
+                if(et_WebName.getText().toString().trim().equals("")){
+                    et_WebName.setError("Invalid");
+                    wantToClose = false;
+                }
+                else if (et_WebUrl.getText().toString().trim().equals("https://"+"")){
+                    et_WebUrl.setError("Invalid");
+                    wantToClose = false;
+                }
+                else {
+                    linkModalArrayList.add(new LinkModal(et_WebName.getText().toString(), et_WebUrl.getText().toString()));
+                    adapter.notifyItemInserted(linkModalArrayList.size());
+                    saveData();
+                    wantToClose = true;
+                }
+                alertDialog.show();
+                if(wantToClose){
+                    alertDialog.dismiss();
+                }
+            }
+        });
     }
 
     private void EditData(int pos){

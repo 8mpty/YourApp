@@ -7,7 +7,7 @@
         android:title="Refresh"
         android:id="@+id/menu_refresh"
         android:icon="@drawable/ic_refresh_24"
-        app:showAsAction="always">
+        app:showAsAction="ifRoom">
     </item>
 
     <group android:checkableBehavior="all">
