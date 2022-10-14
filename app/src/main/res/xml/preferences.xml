@@ -109,12 +109,28 @@
         </SwitchPreference>
 
         <SwitchPreference
+            android:dependency="pref_DEV"
+            android:key="pref_favicon"
+            android:title="Enable Favicon in actionbar"
+            android:summary="Enable this to enable website Favicon"
+            app:iconSpaceReserved="false">
+
+        </SwitchPreference>
+
+        <SwitchPreference
             android:key="pref_UNINSTALL"
             android:dependency="pref_DEV"
             android:title="UNINSTALL APP"
             app:iconSpaceReserved="false"
             android:defaultValue="false">
         </SwitchPreference>
+
+        <SwitchPreferenceCompat
+            android:key="pref_STORAGE"
+            android:dependency="pref_DEV"
+            android:title="ENABLE STORAGE PERMS"
+            app:iconSpaceReserved="false">
+        </SwitchPreferenceCompat>
 
     </PreferenceCategory>
 

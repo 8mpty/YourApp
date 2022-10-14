@@ -1,6 +1,5 @@
 package com.example.emptyapp;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +19,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         Toolbar tb = findViewById(R.id.mtoolbar);
         setSupportActionBar(tb);
+        getWindow().setStatusBarColor(getColor(R.color.darker_purple));
         Objects.requireNonNull(getSupportActionBar()).setTitle("Settings");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

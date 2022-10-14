@@ -16,6 +16,6 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
 
         <!-- Customize your theme here. -->
-        <item name="android:homeAsUpIndicator">@drawable/ic_home</item>
+        <item name="android:homeAsUpIndicator">@drawable/ic__arrow_back_24</item>
     </style>
 </resources>

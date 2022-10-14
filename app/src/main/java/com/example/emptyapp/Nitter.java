@@ -3,7 +3,10 @@ package com.example.emptyapp;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,11 +15,13 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Patterns;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,12 +29,15 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
+import android.webkit.DownloadListener;
+import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +48,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.Gson;
 
 import org.adblockplus.libadblockplus.android.webview.AdblockWebView;
 
@@ -73,14 +84,21 @@ public class Nitter extends AppCompatActivity {
     public static final String PREF_INCOG = "pref_INCOG";
     public static final String PREF_DEF_URL = "pref_def_url";
     private static final String PREF_SERVICE = "pref_Service";
+    private static final String PREF_FAVICON = "pref_favicon";
+
+    private TextInputEditText et_WebName, et_WebUrl;
+
 
     String def_Url;
-
 
     public static boolean uaChanged;
 
     private EditText urlText;
     private ProgressBar pb;
+
+    private ImageView iv , backIc;
+
+    public static boolean webSeaching = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +108,13 @@ public class Nitter extends AppCompatActivity {
         toolbar = findViewById(R.id.mtoolbar);
         urlText = findViewById(R.id.urlText);
         pb = findViewById(R.id.progress_bar);
+        backIc = findViewById(R.id.backIc);
+        iv = findViewById(R.id.fav_icon);
+
+
+        iv.setVisibility(View.GONE);
+        backIc.setVisibility(View.GONE);
+
 
         lockScreenReceiver = new LockScreenReceiver();
         IntentFilter lockFilter = new IntentFilter();
@@ -99,8 +124,7 @@ public class Nitter extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
         toolbar.setOverflowIcon(ContextCompat.getDrawable(this, R.drawable.ic_more_vert_24));
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        backIc.setOnClickListener(v -> onBackPressed());
 
         pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         editor = pref.edit();
@@ -129,6 +153,14 @@ public class Nitter extends AppCompatActivity {
             }
         });
         pb.getProgressDrawable().setColorFilter(Color.rgb(255,255,255), android.graphics.PorterDuff.Mode.SRC_IN);
+
+        if(webSeaching){
+            urlText.setVisibility(View.VISIBLE);
+        }
+        else{
+            urlText.setVisibility(View.GONE);
+        }
+
     }
 
     private void toolbarHide() {
@@ -217,6 +249,22 @@ public class Nitter extends AppCompatActivity {
                 if(!item.isChecked()) {
                     startActivity(new Intent(Nitter.this, SettingsActivity.class));
                 }
+                break;
+
+            case R.id.menu_saveWeb:
+                if(!item.isChecked()) {
+                    saveCurWeb();
+                }
+                break;
+            case R.id.menu_copyLk:
+                if(!item.isChecked()) {
+                    String link = webView.getUrl();
+                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData cd = ClipData.newPlainText("LinkCopy", link);
+                    cm.setPrimaryClip(cd);
+                    Toast.makeText(this,"URL Copied", Toast.LENGTH_SHORT).show();
+                }
+                break;
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -265,6 +313,85 @@ public class Nitter extends AppCompatActivity {
         alertDialog = builder.create();
         alertDialog.show();
     }
+
+    public void saveCurWeb()
+    {
+        AlertDialog.Builder alertDialogBuilder;
+        alertDialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.newlinkalert, null);
+
+        et_WebName = view.findViewById(R.id.et_WebName);
+        et_WebUrl = view.findViewById(R.id.et_WebUrl);
+
+        et_WebUrl.setText(webView.getUrl());
+        et_WebUrl.setSelection(et_WebUrl.getText().length());
+
+        alertDialogBuilder.setView(view)
+                .setTitle("Save Current Website")
+                .setPositiveButton("OK" , (dialog, which) -> {})
+                .setNegativeButton("CANCEL", (dialog, which) -> dialog.dismiss());
+
+        alertDialog = alertDialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawableResource(R.color.darker_grey);
+        alertDialog.show();
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean wantToClose = false;
+
+                if(et_WebName.getText().toString().trim().equals("")){
+                    et_WebName.setError("Invalid");
+                    wantToClose = false;
+                }
+                else if (et_WebUrl.getText().toString().trim().equals("https://"+"")){
+                    et_WebUrl.setError("Invalid");
+                    wantToClose = false;
+                }
+                else {
+                    WebLinksActivity.linkModalArrayList.add(new LinkModal(et_WebName.getText().toString(), et_WebUrl.getText().toString()));
+                    WebLinksActivity.adapter.notifyItemInserted(WebLinksActivity.linkModalArrayList.size());
+                    saveData();
+                    wantToClose = true;
+                }
+                alertDialog.show();
+                if(wantToClose){
+                    alertDialog.dismiss();
+                }
+            }
+        });
+    }
+
+
+    private void saveData() {
+        // method for saving the data in array list.
+        // creating a variable for storing data in
+        // shared preferences.
+        SharedPreferences sharedPreferences = getSharedPreferences("weblinksshared", MODE_PRIVATE);
+
+        // creating a variable for editor to
+        // store data in shared preferences.
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        // creating a new variable for gson.
+        Gson gson = new Gson();
+
+        // getting data from gson and storing it in a string.
+        String json = gson.toJson(WebLinksActivity.linkModalArrayList);
+
+        // below line is to save data in shared
+        // prefs in the form of string.
+        editor.putString("links", json);
+
+        // below line is to apply changes
+        // and save data in shared prefs.
+        editor.apply();
+
+        // after saving data we are displaying a toast message.
+        //Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+    }
+
 
     // When User Scrolls, Toolbar will get hidden and unhidden automatically if reaches the top.
     private class Scroll implements View.OnScrollChangeListener {
@@ -350,6 +477,28 @@ public class Nitter extends AppCompatActivity {
         if(pref.getBoolean(PREF_INCOG, false)){
             InCognitoMode();
         }
+
+        webView.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+                DownloadManager.Request request = new DownloadManager.Request(Uri.parse((url)));
+
+                request.setMimeType(mimetype);
+                String cookies= CookieManager.getInstance().getCookie(url);
+                request.addRequestHeader("coockie", cookies);
+                request.addRequestHeader("User-Agent", userAgent);
+                request.setDescription("Downloading File...");
+                request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
+                request.allowScanningByMediaScanner();
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//                File destFolder = new File(getApplicationContext().getExternalFilesDir(".EmptyHidden").getAbsolutePath());
+                String destFolder = getExternalFilesDir(".EmptyHidden").getAbsolutePath() + "/";
+                request.setDestinationInExternalPublicDir(destFolder,URLUtil.guessFileName(url, contentDisposition, mimetype));
+                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                dm.enqueue(request);
+
+            }
+        });
     }
 
     private void LoadURL(String actURL){
@@ -367,6 +516,8 @@ public class Nitter extends AppCompatActivity {
                 webView.loadUrl(def_Url + "/?q=" + actURL);
             }
         }
+
+
     }
 
     private void InCognitoMode(){
@@ -421,6 +572,7 @@ public class Nitter extends AppCompatActivity {
             ScriptsInjection(view);
 
             pb.setVisibility(View.INVISIBLE);
+            backIc.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -536,7 +688,30 @@ public class Nitter extends AppCompatActivity {
             super.onProgressChanged(view, newProgress);
             pb.setProgress(newProgress);
         }
+
+        @Override
+        public void onReceivedIcon(WebView view, Bitmap icon) {
+            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+            if(iv.getVisibility() == View.VISIBLE) {
+                iv.setImageBitmap(icon);
+            }
+            super.onReceivedIcon(view, icon);
+        }
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        webView.saveState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        webView.restoreState(savedInstanceState);
+    }
+
     public void startService(){
 
         Intent serviceIntent = new Intent(this, AudioService.class);
@@ -603,12 +778,14 @@ public class Nitter extends AppCompatActivity {
             super.onBackPressed();
             onStop();
             webView.destroy();
+            webSeaching = false;
         }
     }
     @Override
     public boolean onSupportNavigateUp() {
         super.onBackPressed();
         webView.destroy();
+        webSeaching = false;
         return super.onSupportNavigateUp();
     }
 }

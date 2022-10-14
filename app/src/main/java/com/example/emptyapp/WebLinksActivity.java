@@ -1,9 +1,11 @@
 package com.example.emptyapp;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,6 +20,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -28,6 +31,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,13 +48,15 @@ public class WebLinksActivity extends AppCompatActivity{
     SharedPreferences pref;
     SharedPreferences.Editor editor;
 
-    private WebLinkAdapter adapter;
+    public static WebLinkAdapter adapter;
 
-    private ArrayList<LinkModal> linkModalArrayList;
+    public static ArrayList<LinkModal> linkModalArrayList;
 
     private TextInputEditText et_WebName, et_WebUrl;
 
     public static final String PREF_DEF_URL = "pref_def_url";
+    private static final String PREF_STORAGE = "pref_STORAGE";
+    private static final int STORAGE_PERMISSION_CODE = 100;
 
     String def_Url;
 
@@ -75,7 +81,56 @@ public class WebLinksActivity extends AppCompatActivity{
 
         loadData();
         BuildRecyclerView();
+
+        if(pref.getBoolean(PREF_STORAGE,false)){
+            permCheck();
+        }
     }
+
+    private void permCheck(){
+        if(ContextCompat.checkSelfPermission(WebLinksActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED){
+            setNewDir();
+        }
+        else{
+            permAsk();
+        }
+    }
+
+    private void permAsk(){
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode == STORAGE_PERMISSION_CODE){
+            if(permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                setNewDir();
+            }else{
+                Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+    private void setNewDir(){
+//        String newPath = Environment.getExternalStorageDirectory() + "/" + ".EmptyHidden";
+        String newPath = getExternalFilesDir(".EmptyHidden").getAbsolutePath();
+//        File mydir = new File(getApplicationContext().getExternalFilesDir(".EmptyHidden").getAbsolutePath());
+        File mydir = new File(newPath);
+
+//        File mydir = new File(Environment.getDataDirectory(),".EmptyHidden");
+
+        if (!mydir.exists()) {
+            mydir.mkdir();
+            Toast.makeText(getApplicationContext(),"Directory Created",Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(getApplicationContext(),"Directory Exists",Toast.LENGTH_LONG).show();
+        }
+    }
+
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT){
 
         @Override
@@ -192,6 +247,7 @@ public class WebLinksActivity extends AppCompatActivity{
                 if (!item.isChecked()) {
                     def_Url = pref.getString(PREF_DEF_URL, def_Url);
                     Nitter.url = def_Url;
+                    Nitter.webSeaching = true;
                     editor.putBoolean("pref_webSearch",true);
                     editor.apply();
                     startActivity(new Intent(WebLinksActivity.this, Nitter.class));
@@ -367,6 +423,9 @@ public class WebLinksActivity extends AppCompatActivity{
     @Override
     protected void onResume() {
         super.onResume();
+        if(pref.getBoolean(PREF_STORAGE,false)){
+            permCheck();
+        }
     }
 
     @Override

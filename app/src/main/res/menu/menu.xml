@@ -13,9 +13,10 @@
     <group android:checkableBehavior="all">
         <item
             android:id="@+id/chk_vid"
-            android:title="Allow Video"
+            android:title="Allow Video (YT Music)"
             app:showAsAction="never" />
     </group>
+
     <item
         android:id="@+id/adblocker"
         android:title="Choose AdBlocker Type"
@@ -32,14 +33,21 @@
     </item>
 
     <item
-        android:id="@+id/hist"
-        android:title="Clear History"
+        android:id="@+id/menu_saveWeb"
+        android:title="Save Current Website"
         app:showAsAction="never">
+
     </item>
 
     <item
         android:id="@+id/chk_ua"
         android:title="Change User Agent"
+        app:showAsAction="never">
+    </item>
+
+    <item
+        android:id="@+id/hist"
+        android:title="Clear History"
         app:showAsAction="never">
     </item>
 
@@ -50,6 +58,13 @@
             app:showAsAction="never">
         </item>
     </group>
+
+    <item
+        android:id="@+id/menu_copyLk"
+        android:title="Copy URL"
+        app:showAsAction="never">
+
+    </item>
 
     <item
         android:id="@+id/menu_set"

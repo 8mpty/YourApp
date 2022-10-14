@@ -51,6 +51,7 @@ public class WebLinkAdapter extends RecyclerView.Adapter<WebLinkAdapter.ViewHold
         LinkModal modal = linkModalArrayList.get(position);
         holder.urlNameTV.setText(modal.getUrlName());
         holder.urlLinkTV.setText(modal.getUrlLink());
+        //holder.urlIconTV.setImageBitmap(modal.getUrlIcon());
 
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
@@ -94,6 +95,7 @@ public class WebLinkAdapter extends RecyclerView.Adapter<WebLinkAdapter.ViewHold
 
             urlNameTV = itemView.findViewById(R.id.txt_webTitle);
             urlLinkTV = itemView.findViewById(R.id.txt_webLink);
+            //urlIconTV = itemView.findViewById(R.id.fav_icon);
         }
     }
 
