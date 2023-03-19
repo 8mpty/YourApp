@@ -85,6 +85,10 @@ public class Nitter extends AppCompatActivity {
     public static final String PREF_DEF_URL = "pref_def_url";
     private static final String PREF_SERVICE = "pref_Service";
     private static final String PREF_FAVICON = "pref_favicon";
+    public static final String PREF_DEF_URL_ACT = "pref_def_url_act";
+    public static final String PREF_DEF_URL_ACT_LINK = "pref_def_url_act_link";
+
+
 
     private TextInputEditText et_WebName, et_WebUrl;
 
@@ -265,6 +269,14 @@ public class Nitter extends AppCompatActivity {
                     Toast.makeText(this,"URL Copied", Toast.LENGTH_SHORT).show();
                 }
                 break;
+            case R.id.set_def_act_url:
+                if (!item.isChecked()){
+                    String url = webView.getUrl();
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putBoolean(PREF_DEF_URL_ACT, true);
+                    editor.putString(PREF_DEF_URL_ACT_LINK, url);
+                    editor.apply();
+                }
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -419,7 +431,7 @@ public class Nitter extends AppCompatActivity {
             {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
                 {
-                    webView.onResume();
+//                    webView.onResume();
                 }
             }
         }
@@ -606,8 +618,10 @@ public class Nitter extends AppCompatActivity {
         injectScriptFile(view , "scripts/agerestricbypass.js");
 
         // Allow Background Playback for YT Music but not Youtube.com
-        // TODO WORKS SOMETIMES NOW
-        injectScriptFile(view , "scripts/bk.js");
+        //  ̶T̶O̶D̶O̶ ̶W̶O̶R̶K̶S̶ ̶S̶O̶M̶E̶T̶I̶M̶E̶S̶ ̶N̶O̶W̶
+        // FIXED? ONLY IN YT MUSIC
+//        injectScriptFile(view , "scripts/bk.js");
+        injectScriptFile(view , "scripts/bk_2.js");
 
         //injectScriptFile(view , "scripts/mute.js");
 
@@ -712,17 +726,17 @@ public class Nitter extends AppCompatActivity {
         webView.restoreState(savedInstanceState);
     }
 
-    public void startService(){
-
-        Intent serviceIntent = new Intent(this, AudioService.class);
-        serviceIntent.putExtra("inputExtra", webView.getUrl());
-        startService(serviceIntent);
-        webView.onResume();
-    }
-    public void stopService() {
-        Intent serviceIntent = new Intent(this, AudioService.class);
-        stopService(serviceIntent);
-    }
+//    public void startService(){
+//
+//        Intent serviceIntent = new Intent(this, AudioService.class);
+//        serviceIntent.putExtra("inputExtra", webView.getUrl());
+//        startService(serviceIntent);
+//        webView.onResume();
+//    }
+//    public void stopService() {
+//        Intent serviceIntent = new Intent(this, AudioService.class);
+//        stopService(serviceIntent);
+//    }
 
     private void SaveUAData() {
         editor.putString(PREF_UA, ua);
@@ -737,7 +751,7 @@ public class Nitter extends AppCompatActivity {
 
         if(pref.getBoolean(PREF_SERVICE, false) &&
                 pref.getBoolean("pref_DEV",false)){
-            stopService();
+//            stopService();
         }
 
         webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
@@ -748,7 +762,7 @@ public class Nitter extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         //startService(new Intent(Nitter.this, AudioService.class));
-        webView.onResume();
+//        webView.onResume();
     }
 
     @Override
@@ -757,10 +771,10 @@ public class Nitter extends AppCompatActivity {
 
         if(pref.getBoolean(PREF_SERVICE, false) &&
                 pref.getBoolean("pref_DEV",false)) {
-            startService();
+//            startService();
         }
 
-        webView.onResume();
+//        webView.onResume();
     }
 
     @Override
