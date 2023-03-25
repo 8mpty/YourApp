@@ -39,7 +39,7 @@
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name=".Nitter"
+            android:name=".WebActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
@@ -53,7 +53,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".VerifyIP"
+            android:name=".ConnectionCheck"
             android:configChanges="orientation|screenSize"
             android:exported="true">
         </activity>

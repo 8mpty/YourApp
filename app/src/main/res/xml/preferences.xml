@@ -22,7 +22,8 @@
             android:summary="%s"
             app:iconSpaceReserved="false"
             android:entries="@array/entry_Entries_URL"
-            android:entryValues="@array/entry_Values_URL">
+            android:entryValues="@array/entry_Values_URL"
+            android:defaultValue="2">
         </ListPreference>
 
         <SwitchPreference
@@ -90,6 +91,36 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="IP/VPN Verifications"
+        android:summary="*Some options still need Developer Mode to be enabled*"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:key="pref_VpnTog"
+            android:dependency="pref_DEV"
+            android:title="VPN Connection"
+            android:summary="Used to unlock app when Device is connected to any VPN"
+            app:iconSpaceReserved="false">
+        </SwitchPreferenceCompat>
+
+        <SwitchPreferenceCompat
+            android:key="pref_IpTog"
+            android:dependency="pref_DEV"
+            android:title="IP Match"
+            android:summary="Used to unlock app when Device IP Matches"
+            app:iconSpaceReserved="false">
+        </SwitchPreferenceCompat>
+
+        <EditTextPreference
+            android:key="pref_Ipa"
+            android:dependency="pref_IpTog"
+            android:title="IP Address"
+            app:iconSpaceReserved="false">
+        </EditTextPreference>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="Developer Stuff"
         app:iconSpaceReserved="false">
 
@@ -114,7 +145,6 @@
             android:title="Enable Favicon in actionbar"
             android:summary="Enable this to enable website Favicon"
             app:iconSpaceReserved="false">
-
         </SwitchPreference>
 
         <SwitchPreference
@@ -140,22 +170,6 @@
             app:iconSpaceReserved="false"
             android:enabled="false">
         </SwitchPreferenceCompat>
-
-        <SwitchPreferenceCompat
-            android:key="pref_IpTog"
-            android:dependency="pref_DEV"
-            android:title="IP Match"
-            android:summary="Used to unlock app when Device IP Matches"
-            app:iconSpaceReserved="false">
-
-        </SwitchPreferenceCompat>
-
-        <EditTextPreference
-            android:key="pref_Ipa"
-            android:dependency="pref_IpTog"
-            android:title="IP Address"
-            app:iconSpaceReserved="false">
-        </EditTextPreference>
 
     </PreferenceCategory>
 

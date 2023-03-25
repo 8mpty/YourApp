@@ -246,11 +246,11 @@ public class WebLinksActivity extends AppCompatActivity{
             case R.id.main_webOpen:{
                 if (!item.isChecked()) {
                     def_Url = pref.getString(PREF_DEF_URL, def_Url);
-                    Nitter.url = def_Url;
-                    Nitter.webSeaching = true;
+                    WebActivity.url = def_Url;
+                    WebActivity.webSeaching = true;
                     editor.putBoolean("pref_webSearch",true);
                     editor.apply();
-                    startActivity(new Intent(WebLinksActivity.this, Nitter.class));
+                    startActivity(new Intent(WebLinksActivity.this, WebActivity.class));
                 }
             }
             break;

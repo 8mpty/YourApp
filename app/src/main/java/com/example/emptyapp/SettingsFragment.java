@@ -11,6 +11,8 @@ import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import timber.log.Timber;
+
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
@@ -28,17 +30,24 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
         AlertDialog alertDialog;
-        pref = PreferenceManager.getDefaultSharedPreferences(getContext());
 
+        pref = PreferenceManager.getDefaultSharedPreferences(getContext());
         preferenceChangeListener = (sharedPreferences, key) -> {
             editor = sharedPreferences.edit();
             EditTextPreference ipt = (EditTextPreference) findPreference("pref_Ipa");
-            String act_ip = ipt.getText();
 
-            saveip(act_ip, editor, sharedPreferences);
+            if(BuildConfig.DEBUG){
+                Timber.plant(new Timber.DebugTree());
+            }
 
-            if(key.equals(Nitter.PREF_UA)){
-                Nitter.uaChanged = true;
+            if(ipt != null) {
+                String act_ip = ipt.getText();
+                saveIP(act_ip);
+                Timber.tag("IP SAVED IS ").e(act_ip);
+            }
+
+            if(key.equals(WebActivity.PREF_UA)){
+                WebActivity.uaChanged = true;
             }
 
             if(key.equals("pref_UNINSTALL")){
@@ -46,26 +55,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 intent.setData(Uri.parse("package:com.example.emptyapp"));
                 startActivity(intent);
             }
-
-//            if(key.equals("pref_DEV")){
-//                String test = String.valueOf(pref.getBoolean(PREF_DEV, false));
-//                Log.e("TEST",test);
-//
-//                // if dev-tog is True
-//                if(pref.getBoolean(PREF_DEV, false)){
-//                    Log.e("TEST","truetrue");
-//
-//                }else{
-//                    if(pref.getBoolean(PREF_IPTOG ,false)){
-//
-//                    }
-//                    Log.e("TEST","falsefalse");
-//
-//                }
-//            }
         };
-
-
 
         androidx.preference.EditTextPreference editTextPreference = getPreferenceManager().findPreference("pref_SecKey");
         assert editTextPreference != null;
@@ -88,10 +78,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 .unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
     }
 
-
-    public void saveip(String ip, SharedPreferences.Editor editors, SharedPreferences pref){
-        editors = pref.edit();
-        editors.putString(PREF_IPSAVE, ip);
-        editors.apply();
+    private void saveIP(String ip){
+        editor.putString(PREF_IPSAVE, ip);
+        editor.apply();
     }
 }

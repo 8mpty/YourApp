@@ -27,7 +27,7 @@ public class MyService extends Service {
         Toast.makeText(this, "Service created", Toast.LENGTH_SHORT).show();
         mediaPlayer = new MediaPlayer();
 
-        url = Nitter.webView.getUrl();
+        url = WebActivity.webView.getUrl();
 
         uri = Uri.parse(url);
         try {

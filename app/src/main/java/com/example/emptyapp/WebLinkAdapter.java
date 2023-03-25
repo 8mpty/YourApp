@@ -55,8 +55,8 @@ public class WebLinkAdapter extends RecyclerView.Adapter<WebLinkAdapter.ViewHold
 
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
-            Nitter.url = modal.getUrlLink();
-            Intent intent = new Intent(context, Nitter.class);
+            WebActivity.url = modal.getUrlLink();
+            Intent intent = new Intent(context, WebActivity.class);
             v.getContext().startActivity(intent);
 
             editor.putBoolean("pref_webSearch",false);

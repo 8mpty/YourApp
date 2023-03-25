@@ -19,7 +19,7 @@ public class AudioService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         createNotiChannel();
         String message = "TEST";
-        Intent notiIntent = new Intent(this, Nitter.class);
+        Intent notiIntent = new Intent(this, WebActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notiIntent, 0);
 

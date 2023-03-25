@@ -5,30 +5,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".VerifyIP">
+    android:background="@color/black"
+    tools:context=".ConnectionCheck">
 
     <TextView
         android:id="@+id/tv"
-        android:layout_width="wrap_content"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="300dp"
         android:text="TextView"
+        android:textAlignment="center"
+        android:textSize="40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="246dp" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <Button
         android:id="@+id/exbtn"
-        android:layout_width="350px"
-        android:layout_height="250dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/tv"
-        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="39dp"
-        android:layout_marginBottom="234dp"
-        android:text="Exit"
-        android:onClick="changeBool">
-
-    </androidx.appcompat.widget.AppCompatButton>
+        android:layout_marginTop="15dp"
+        android:backgroundTint="#673AB7"
+        android:baselineAligned="false"
+        android:onClick="changeBool"
+        android:text="Settings"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </RelativeLayout>

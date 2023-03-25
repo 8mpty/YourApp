@@ -60,7 +60,7 @@ import java.io.InputStream;
 import java.util.Objects;
 
 
-public class Nitter extends AppCompatActivity {
+public class WebActivity extends AppCompatActivity {
 
 
     public static AdblockWebView webView;
@@ -94,6 +94,7 @@ public class Nitter extends AppCompatActivity {
     boolean PREF_DEF_CLICKED = true;
 
 
+
     private TextInputEditText et_WebName, et_WebUrl;
 
 
@@ -112,7 +113,7 @@ public class Nitter extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setStatusBarColor(getColor(R.color.black));
-        setContentView(R.layout.activity_nitter);
+        setContentView(R.layout.activity_webact);
         toolbar = findViewById(R.id.mtoolbar);
         urlText = findViewById(R.id.urlText);
         pb = findViewById(R.id.progress_bar);
@@ -258,7 +259,7 @@ public class Nitter extends AppCompatActivity {
         }
         else if(id == R.id.menu_set){
             if(!item.isChecked()) {
-                startActivity(new Intent(Nitter.this, SettingsActivity.class));
+                startActivity(new Intent(WebActivity.this, SettingsActivity.class));
             }
         }
         else if(id == R.id.menu_saveWeb){
@@ -351,7 +352,7 @@ public class Nitter extends AppCompatActivity {
 //
 //            case R.id.menu_set:
 //                if(!item.isChecked()) {
-//                    startActivity(new Intent(Nitter.this, SettingsActivity.class));
+//                    startActivity(new Intent(WebActivity.this, SettingsActivity.class));
 //                }
 //                break;
 //
@@ -400,7 +401,7 @@ public class Nitter extends AppCompatActivity {
     public void HideTbDialog()
     {
         // Custom Dialog to show *HIDE OR UN-HIDE TOOLBAR*
-        AlertDialog.Builder builder = new AlertDialog.Builder(Nitter.this)
+        AlertDialog.Builder builder = new AlertDialog.Builder(WebActivity.this)
                 .setTitle("Hide / Unhide Toolbar")
                 .setMessage("! IMPORTANT ! \n\nTo UNHIDE the Toolbar, Long press any blank space. ")
                 .setPositiveButton("OK", (dialog, which) -> {
@@ -414,17 +415,17 @@ public class Nitter extends AppCompatActivity {
     }
     public void UaCustomDialog()
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(Nitter.this)
+        AlertDialog.Builder builder = new AlertDialog.Builder(WebActivity.this)
                 .setTitle("Change User Agent")
                 .setSingleChoiceItems(values, -1, (dialog, item) -> {
                     if (item == 0 ) {
-                        Toast.makeText(Nitter.this, "UA CHANGE Android", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(WebActivity.this, "UA CHANGE Android", Toast.LENGTH_SHORT).show();
                         ua = "Mozilla/5.0 (Linux; Android 9; J8110 Build/55.0.A.0.552; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/71.0.3578.99 Mobile Safari/537.36";
                         SaveUAData();
                         webSettings.setUserAgentString(ua);
                     }
                     else if (item == 1) {
-                        Toast.makeText(Nitter.this, "UA CHANGE Desktop", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(WebActivity.this, "UA CHANGE Desktop", Toast.LENGTH_SHORT).show();
                         ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36";
                         SaveUAData();
                         webSettings.setUserAgentString(ua);
@@ -890,7 +891,7 @@ public class Nitter extends AppCompatActivity {
 //    @Override
 //    protected void onPause() {
 //        super.onPause();
-//        //startService(new Intent(Nitter.this, AudioService.class));
+//        //startService(new Intent(WebActivity.this, AudioService.class));
 //        if(pref.getBoolean(PREF_SERVICE, false) &&
 //                pref.getBoolean("pref_DEV",false)){
 //            startService();

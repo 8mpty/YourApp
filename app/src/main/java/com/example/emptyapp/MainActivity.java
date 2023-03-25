@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String PREF_DEV = "pref_DEV";
     public static final String PREF_IPTOG = "pref_IpTog";
 
+    public static final String PREF_VPN = "pref_VpnTog";
+
     private View keyboardLayout;
 
     private Button[] btn;
@@ -260,12 +262,17 @@ public class MainActivity extends AppCompatActivity {
 
         if(num == pass || num == backup_key){
             keyboardLayout.setVisibility(View.GONE);
-            if(pref.getBoolean(PREF_DEV, false) &&
-                    pref.getBoolean(PREF_IPTOG, false)){
-                startActivity(new Intent(this, VerifyIP.class));
+            if((pref.getBoolean(PREF_DEV, false) &&
+                    pref.getBoolean(PREF_IPTOG, false)) ||
+                    (pref.getBoolean(PREF_DEV, false) &&
+                            pref.getBoolean(PREF_VPN,false))){
+                startActivity(new Intent(this, ConnectionCheck.class));
             }
+//            else if(pref.getBoolean(PREF_VPN, false)){
+//                startActivity(new Intent(this, ConnectionCheck.class));
+//            }
             else if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
-                startActivity(new Intent(this, Nitter.class));
+                startActivity(new Intent(this, WebActivity.class));
             }
             else  startActivity(webLinks);
         }
