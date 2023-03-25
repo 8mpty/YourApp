@@ -9,9 +9,12 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import java.io.IOException;
+
 public class MyService extends Service {
     private MediaPlayer mediaPlayer;
-    Uri uri = Uri.parse(Nitter.webView.getUrl());
+    Uri uri;
+    String url;
     
     @Nullable
     @Override
@@ -22,8 +25,24 @@ public class MyService extends Service {
 
     public void onCreate(){
         Toast.makeText(this, "Service created", Toast.LENGTH_SHORT).show();
+        mediaPlayer = new MediaPlayer();
 
-        mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
+        url = Nitter.webView.getUrl();
+
+        uri = Uri.parse(url);
+        try {
+            mediaPlayer.setDataSource(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//        mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
         mediaPlayer.setLooping(false);
     }
      public void onStart(Intent intent, int startid){

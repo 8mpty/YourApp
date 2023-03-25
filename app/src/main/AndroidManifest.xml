@@ -26,9 +26,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EmptyApp"
         android:usesCleartextTraffic="true">
-<!--        <activity-->
-<!--            android:name=".LockScreenManager"-->
-<!--            android:exported="false" />-->
         <activity
             android:name=".WebLinksActivity"
             android:configChanges="orientation|screenSize"
@@ -55,21 +52,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".VerifyIP"
+            android:configChanges="orientation|screenSize"
+            android:exported="true">
+        </activity>
+
 <!--        <service android:name=".MyService" />-->
-<!--        <activity-->
-<!--            android:name=".VerifyIP"-->
-<!--            android:configChanges="orientation|screenSize"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
+        <service android:name=".AudioService"/>
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
-
-<!--        <service-->
-<!--            android:name=".AudioService"-->
-<!--            android:enabled="true" />-->
     </application>
 
 </manifest>

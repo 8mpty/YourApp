@@ -132,6 +132,31 @@
             app:iconSpaceReserved="false">
         </SwitchPreferenceCompat>
 
+        <SwitchPreferenceCompat
+            android:key="pref_def_ACT"
+            android:dependency="pref_DEV"
+            android:title="Enable Default Activity"
+            android:defaultValue="false"
+            app:iconSpaceReserved="false"
+            android:enabled="false">
+        </SwitchPreferenceCompat>
+
+        <SwitchPreferenceCompat
+            android:key="pref_IpTog"
+            android:dependency="pref_DEV"
+            android:title="IP Match"
+            android:summary="Used to unlock app when Device IP Matches"
+            app:iconSpaceReserved="false">
+
+        </SwitchPreferenceCompat>
+
+        <EditTextPreference
+            android:key="pref_Ipa"
+            android:dependency="pref_IpTog"
+            android:title="IP Address"
+            app:iconSpaceReserved="false">
+        </EditTextPreference>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String PREF_SECKEY = "pref_SecKey";
     private static final String PREF_RANDKEYS = "pref_RANDKEYS";
+    public static final String PREF_DEF_URL_ACT = "pref_def_ACT";
+    public static final String PREF_DEV = "pref_DEV";
+    public static final String PREF_IPTOG = "pref_IpTog";
 
     private View keyboardLayout;
 
@@ -208,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -219,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else SetNormalBtnNumbers();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -255,7 +260,14 @@ public class MainActivity extends AppCompatActivity {
 
         if(num == pass || num == backup_key){
             keyboardLayout.setVisibility(View.GONE);
-            startActivity(webLinks);
+            if(pref.getBoolean(PREF_DEV, false) &&
+                    pref.getBoolean(PREF_IPTOG, false)){
+                startActivity(new Intent(this, VerifyIP.class));
+            }
+            else if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
+                startActivity(new Intent(this, Nitter.class));
+            }
+            else  startActivity(webLinks);
         }
         else txtPass.setError("Invalid Code");
     }

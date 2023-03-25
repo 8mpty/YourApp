@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -61,6 +62,7 @@ import java.util.Objects;
 
 public class Nitter extends AppCompatActivity {
 
+
     public static AdblockWebView webView;
     WebSettings webSettings;
     public static String ua = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36"; // Desktop User Agent
@@ -85,9 +87,11 @@ public class Nitter extends AppCompatActivity {
     public static final String PREF_DEF_URL = "pref_def_url";
     private static final String PREF_SERVICE = "pref_Service";
     private static final String PREF_FAVICON = "pref_favicon";
-    public static final String PREF_DEF_URL_ACT = "pref_def_url_act";
-    public static final String PREF_DEF_URL_ACT_LINK = "pref_def_url_act_link";
+    public static final String PREF_DEF_URL_ACT = "pref_def_ACT";
 
+    private static final String PREF_DEF_URL_ACT_LINK = "pref_def_url_act_link";
+    private static final String PREF_TEMP_URL = "";
+    boolean PREF_DEF_CLICKED = true;
 
 
     private TextInputEditText et_WebName, et_WebUrl;
@@ -164,7 +168,6 @@ public class Nitter extends AppCompatActivity {
         else{
             urlText.setVisibility(View.GONE);
         }
-
     }
 
     private void toolbarHide() {
@@ -183,105 +186,215 @@ public class Nitter extends AppCompatActivity {
         return true;
     }
 
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        // If true
+        if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
+            menu.getItem(8).setEnabled(true);
+            Log.e("STATUS_ACT", "Enabled");
+
+        }
+        // else if false
+        else if(!pref.getBoolean(PREF_DEF_URL_ACT, false)){
+            menu.getItem(8).setEnabled(false);
+            editor.putBoolean(PREF_DEF_URL_ACT, false);
+            Log.e("STATUS_ACT", "Not Enabled");
+        }
+        editor.apply();
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        switch (item.getItemId())
-        {
-            case R.id.menu_refresh:
-                if(!item.isChecked()){
-                    webView.reload();
-                }
-                break;
-
-            case R.id.chk_vid:
-                if(item.isChecked()) {
-                    item.setChecked(false);
-                    videoEnabled = false;
-                    webView.reload();
-                    Toast.makeText(this, "VIDEO DISABLED", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    item.setChecked(true);
-                    videoEnabled = true;
-                    webView.reload();
-                    Toast.makeText(this, "VIDEO ENABLED", Toast.LENGTH_SHORT).show();
-                }
-                break;
-
-            case R.id.ad_guard:
-                if(!item.isChecked()) {
-                    SharedPreferences.Editor editor = pref.edit();
-                    editor.putBoolean(PREF_ADS, true);
-                    editor.apply();
-                    webView.reload();
-                }
-                break;
-
-            case R.id.ad_16x:
-                if(!item.isChecked()) {
-                    SharedPreferences.Editor editor = pref.edit();
-                    editor.putBoolean(PREF_ADS,false);
-                    editor.apply();
-                    webView.reload();
-                }
-                break;
-
-            case R.id.hist:
-                if(item.isChecked()) {
-                    clearHistory(false);
-                }
-                else clearHistory(true);
-                break;
-
-            case R.id.chk_ua:
-                if(!item.isChecked()) {
-                    UaCustomDialog();
-                }
-                break;
-
-            case R.id.hidetb:
-                if(!item.isChecked()) {
-                    HideTbDialog();
-                    editor.putBoolean(PREF_TB, true);
-                    editor.commit();
-                }
-                break;
-
-            case R.id.menu_set:
-                if(!item.isChecked()) {
-                    startActivity(new Intent(Nitter.this, SettingsActivity.class));
-                }
-                break;
-
-            case R.id.menu_saveWeb:
-                if(!item.isChecked()) {
-                    saveCurWeb();
-                }
-                break;
-            case R.id.menu_copyLk:
-                if(!item.isChecked()) {
-                    String link = webView.getUrl();
-                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                    ClipData cd = ClipData.newPlainText("LinkCopy", link);
-                    cm.setPrimaryClip(cd);
-                    Toast.makeText(this,"URL Copied", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case R.id.set_def_act_url:
-                if (!item.isChecked()){
-                    String url = webView.getUrl();
-                    SharedPreferences.Editor editor = pref.edit();
-                    editor.putBoolean(PREF_DEF_URL_ACT, true);
-                    editor.putString(PREF_DEF_URL_ACT_LINK, url);
-                    editor.apply();
-                }
-
-            default:
-                return super.onOptionsItemSelected(item);
+        int id = item.getItemId();
+        if(id == R.id.chk_vid){
+            if(item.isChecked()) {
+                item.setChecked(false);
+                videoEnabled = false;
+                webView.reload();
+                Toast.makeText(this, "VIDEO DISABLED", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                item.setChecked(true);
+                videoEnabled = true;
+                webView.reload();
+                Toast.makeText(this, "VIDEO ENABLED", Toast.LENGTH_SHORT).show();
+            }
         }
-        return true;
+        else if(id == R.id.ad_guard){
+            if(!item.isChecked()) {
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putBoolean(PREF_ADS, true);
+                editor.apply();
+                webView.reload();
+            }
+        }
+        else if(id == R.id.ad_16x){
+            if(!item.isChecked()) {
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putBoolean(PREF_ADS,false);
+                editor.apply();
+                webView.reload();
+            }
+        }
+        else if(id == R.id.hist){
+            if(item.isChecked()) {
+                clearHistory(false);
+            }
+            else clearHistory(true);
+        }
+        else if(id == R.id.chk_ua){
+            if(!item.isChecked()) {
+                UaCustomDialog();
+            }
+        }
+        else if(id == R.id.hidetb){
+            if(!item.isChecked()) {
+                HideTbDialog();
+                editor.putBoolean(PREF_TB, true);
+                editor.apply();
+            }
+        }
+        else if(id == R.id.menu_set){
+            if(!item.isChecked()) {
+                startActivity(new Intent(Nitter.this, SettingsActivity.class));
+            }
+        }
+        else if(id == R.id.menu_saveWeb){
+            if(!item.isChecked()) {
+                saveCurWeb();
+            }
+        }
+        else if(id == R.id.menu_copyLk){
+            if(!item.isChecked()) {
+                String link = webView.getUrl();
+                ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData cd = ClipData.newPlainText("LinkCopy", link);
+                cm.setPrimaryClip(cd);
+                Toast.makeText(this,"URL Copied", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else if(id == R.id.set_def_act_url){
+            if(!item.isChecked()) {
+                editor.putString(PREF_DEF_URL_ACT_LINK, PREF_TEMP_URL);
+                editor.putBoolean("clicked", true);
+                Log.e("WEB", pref.getString(PREF_DEF_URL_ACT_LINK, null));
+            }
+            else{
+                editor.putBoolean("clicked", false);
+            }
+            editor.apply();
+        }
+        return super.onOptionsItemSelected(item);
+//        switch (item.getItemId())
+//        {
+//            case R.id.menu_refresh:
+//                if(!item.isChecked()){
+//                    webView.reload();
+//                }
+//                break;
+//
+//            case R.id.chk_vid:
+//                if(item.isChecked()) {
+//                    item.setChecked(false);
+//                    videoEnabled = false;
+//                    webView.reload();
+//                    Toast.makeText(this, "VIDEO DISABLED", Toast.LENGTH_SHORT).show();
+//                }
+//                else {
+//                    item.setChecked(true);
+//                    videoEnabled = true;
+//                    webView.reload();
+//                    Toast.makeText(this, "VIDEO ENABLED", Toast.LENGTH_SHORT).show();
+//                }
+//                break;
+//
+//            case R.id.ad_guard:
+//                if(!item.isChecked()) {
+//                    SharedPreferences.Editor editor = pref.edit();
+//                    editor.putBoolean(PREF_ADS, true);
+//                    editor.apply();
+//                    webView.reload();
+//                }
+//                break;
+//
+//            case R.id.ad_16x:
+//                if(!item.isChecked()) {
+//                    SharedPreferences.Editor editor = pref.edit();
+//                    editor.putBoolean(PREF_ADS,false);
+//                    editor.apply();
+//                    webView.reload();
+//                }
+//                break;
+//
+//            case R.id.hist:
+//                if(item.isChecked()) {
+//                    clearHistory(false);
+//                }
+//                else clearHistory(true);
+//                break;
+//
+//            case R.id.chk_ua:
+//                if(!item.isChecked()) {
+//                    UaCustomDialog();
+//                }
+//                break;
+//
+//            case R.id.hidetb:
+//                if(!item.isChecked()) {
+//                    HideTbDialog();
+//                    editor.putBoolean(PREF_TB, true);
+//                    editor.commit();
+//                }
+//                break;
+//
+//            case R.id.menu_set:
+//                if(!item.isChecked()) {
+//                    startActivity(new Intent(Nitter.this, SettingsActivity.class));
+//                }
+//                break;
+//
+//            case R.id.menu_saveWeb:
+//                if(!item.isChecked()) {
+//                    saveCurWeb();
+//                }
+//                break;
+//            case R.id.menu_copyLk:
+//                if(!item.isChecked()) {
+//                    String link = webView.getUrl();
+//                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+//                    ClipData cd = ClipData.newPlainText("LinkCopy", link);
+//                    cm.setPrimaryClip(cd);
+//                    Toast.makeText(this,"URL Copied", Toast.LENGTH_SHORT).show();
+//                }
+//                break;
+//            case R.id.set_def_act_url:
+//                SharedPreferences.Editor editor = pref.edit();
+//
+//                if(pref.getBoolean(PREF_DEF_URL_ACT,false)){
+//
+//                }
+//
+//                if(!item.isChecked() && !pref.getBoolean(PREF_DEF_URL_ACT,false)){
+//                    item.setChecked(true);
+//                    editor.putBoolean(PREF_DEF_URL_ACT,true);
+//                    editor.apply();
+//                }
+//                else if (pref.getBoolean(PREF_DEF_URL_ACT,true)){
+//                    item.setChecked(true);
+//                }
+//                else
+//                {
+//                    editor.putBoolean(PREF_DEF_URL_ACT,true);
+//                    editor.apply();
+//                }
+//                break;
+//
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//        return true;
     }
 
     public void HideTbDialog()
@@ -316,7 +429,7 @@ public class Nitter extends AppCompatActivity {
                         SaveUAData();
                         webSettings.setUserAgentString(ua);
                     }
-                    editor.commit();
+                    editor.apply();
                     alertDialog.dismiss();
                     webView.reload();
                 })
@@ -325,7 +438,6 @@ public class Nitter extends AppCompatActivity {
         alertDialog = builder.create();
         alertDialog.show();
     }
-
     public void saveCurWeb()
     {
         AlertDialog.Builder alertDialogBuilder;
@@ -374,8 +486,6 @@ public class Nitter extends AppCompatActivity {
             }
         });
     }
-
-
     private void saveData() {
         // method for saving the data in array list.
         // creating a variable for storing data in
@@ -403,8 +513,6 @@ public class Nitter extends AppCompatActivity {
         // after saving data we are displaying a toast message.
         //Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
     }
-
-
     // When User Scrolls, Toolbar will get hidden and unhidden automatically if reaches the top.
     private class Scroll implements View.OnScrollChangeListener {
         @Override
@@ -436,14 +544,11 @@ public class Nitter extends AppCompatActivity {
             }
         }
     }
-
     @SuppressLint({"SetJavaScriptEnabled", "ClickableViewAccessibility"})
     private void webStuff()
     {
+        // Webview
         webView = findViewById(R.id.webview);
-        webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-
         webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
         webView.setScrollbarFadingEnabled(true);
         webView.setLongClickable(true);
@@ -453,9 +558,11 @@ public class Nitter extends AppCompatActivity {
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         webView.setBackgroundColor(0x00000000);
 
+        // Websettings
+        webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
         webSettings.setAppCacheEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-
         webSettings.setBuiltInZoomControls(true);
         webSettings.setSupportZoom(true);
         webSettings.setDisplayZoomControls(false);
@@ -463,6 +570,7 @@ public class Nitter extends AppCompatActivity {
         webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
         webSettings.setMediaPlaybackRequiresUserGesture(false);
         webSettings.setUserAgentString(ua);
+        webSettings.setDomStorageEnabled(true);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
         {
@@ -473,7 +581,15 @@ public class Nitter extends AppCompatActivity {
         webView.setWebChromeClient(new MyChrome());
         webView.setWebViewClient(new MyWebViewClient());
 
-        LoadURL(url);
+        // Check if true
+        if(pref.getBoolean(PREF_DEF_URL_ACT, false) &&
+                pref.getBoolean("clicked", false)){
+            //LoadURL(pref.getString(PREF_DEF_URL_ACT_LINK, null));
+            LoadURL(url);
+        }
+        else {
+            LoadURL(url);
+        }
 
         webView.setOnScrollChangeListener(new Scroll());
 
@@ -481,7 +597,7 @@ public class Nitter extends AppCompatActivity {
             if (toolbar.getVisibility() != View.VISIBLE) {
                 toolbar.setVisibility(View.VISIBLE);
                 editor.putBoolean(PREF_TB, false);
-                editor.commit();
+                editor.apply();
             }
             return false;
         });
@@ -495,6 +611,7 @@ public class Nitter extends AppCompatActivity {
             public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
                 DownloadManager.Request request = new DownloadManager.Request(Uri.parse((url)));
 
+                String title = URLUtil.guessFileName(url, contentDisposition, mimetype);
                 request.setMimeType(mimetype);
                 String cookies= CookieManager.getInstance().getCookie(url);
                 request.addRequestHeader("coockie", cookies);
@@ -505,12 +622,26 @@ public class Nitter extends AppCompatActivity {
                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 //                File destFolder = new File(getApplicationContext().getExternalFilesDir(".EmptyHidden").getAbsolutePath());
                 String destFolder = getExternalFilesDir(".EmptyHidden").getAbsolutePath() + "/";
-                request.setDestinationInExternalPublicDir(destFolder,URLUtil.guessFileName(url, contentDisposition, mimetype));
+                request.setDestinationInExternalPublicDir(destFolder,title);
                 DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 dm.enqueue(request);
 
             }
         });
+
+        if(pref.getString(PREF_TEMP_URL, null) != null ||
+                pref.getString(PREF_TEMP_URL, null) == null) {
+
+            // Saves the original URL when user clicks on the Recycler view link
+            editor.putString(PREF_TEMP_URL, webView.getUrl());
+            editor.apply();
+            Log.e("TEMP WEB URL IS ", (pref.getString(PREF_TEMP_URL, null)));
+        }
+
+//        editor.remove(PREF_DEF_URL_ACT_LINK).apply();
+//        editor.remove(PREF_TEMP_URL).apply();
+//        editor.remove(pref.getString("pref_IpSave", null)).apply();
+//        Log.e("REMOVED", "REMOVED");
     }
 
     private void LoadURL(String actURL){
@@ -549,7 +680,7 @@ public class Nitter extends AppCompatActivity {
         webView.getSettings().setSaveFormData(false);
     }
 
-    private void clearHistory(Boolean clearHistory) {
+    private void clearHistory(@NonNull Boolean clearHistory) {
         String curUrl = webView.getUrl();
 
         if(clearHistory){
@@ -564,7 +695,6 @@ public class Nitter extends AppCompatActivity {
             webView.loadUrl(curUrl);
         }
     }
-
 
     private class MyWebViewClient extends WebViewClient
     {
@@ -593,7 +723,6 @@ public class Nitter extends AppCompatActivity {
             urlText.setText(webView.getUrl());
         }
     }
-
     public static void ClearCookies(){
         CookieManager.getInstance().removeAllCookies(null);
         CookieManager.getInstance().flush();
@@ -614,13 +743,16 @@ public class Nitter extends AppCompatActivity {
             injectScriptFile(view , "scripts/yt_adblocker.js");
         }
 
+        // Full AD Blocker?
+        injectScriptFile(view , "scripts/HugeBlock.js");
+
         // Bypass Age Restriction Videos On Youtube //
         injectScriptFile(view , "scripts/agerestricbypass.js");
 
         // Allow Background Playback for YT Music but not Youtube.com
         //  ̶T̶O̶D̶O̶ ̶W̶O̶R̶K̶S̶ ̶S̶O̶M̶E̶T̶I̶M̶E̶S̶ ̶N̶O̶W̶
         // FIXED? ONLY IN YT MUSIC
-//        injectScriptFile(view , "scripts/bk.js");
+        // injectScriptFile(view , "scripts/bk.js");
         injectScriptFile(view , "scripts/bk_2.js");
 
         //injectScriptFile(view , "scripts/mute.js");
@@ -726,23 +858,21 @@ public class Nitter extends AppCompatActivity {
         webView.restoreState(savedInstanceState);
     }
 
-//    public void startService(){
-//
-//        Intent serviceIntent = new Intent(this, AudioService.class);
-//        serviceIntent.putExtra("inputExtra", webView.getUrl());
-//        startService(serviceIntent);
-//        webView.onResume();
-//    }
-//    public void stopService() {
-//        Intent serviceIntent = new Intent(this, AudioService.class);
-//        stopService(serviceIntent);
-//    }
+    public void startService(){
 
+        Intent serviceIntent = new Intent(this, AudioService.class);
+        serviceIntent.putExtra("inputExtra", webView.getUrl());
+        startForegroundService(serviceIntent);
+//        webView.onResume();
+    }
+    public void stopService() {
+        Intent serviceIntent = new Intent(this, AudioService.class);
+        stopService(serviceIntent);
+    }
     private void SaveUAData() {
         editor.putString(PREF_UA, ua);
-        editor.commit();
+        editor.apply();
     }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -751,19 +881,23 @@ public class Nitter extends AppCompatActivity {
 
         if(pref.getBoolean(PREF_SERVICE, false) &&
                 pref.getBoolean("pref_DEV",false)){
-//            stopService();
+            stopService();
         }
-
         webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
         webView.onResume();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //startService(new Intent(Nitter.this, AudioService.class));
-//        webView.onResume();
-    }
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        //startService(new Intent(Nitter.this, AudioService.class));
+//        if(pref.getBoolean(PREF_SERVICE, false) &&
+//                pref.getBoolean("pref_DEV",false)){
+//            startService();
+//        }
+////        webView.onResume();
+////        startService();
+//    }
 
     @Override
     protected void onStop() {
@@ -771,7 +905,7 @@ public class Nitter extends AppCompatActivity {
 
         if(pref.getBoolean(PREF_SERVICE, false) &&
                 pref.getBoolean("pref_DEV",false)) {
-//            startService();
+            startService();
         }
 
 //        webView.onResume();
@@ -780,9 +914,11 @@ public class Nitter extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        stopService();
         webView.destroy();
         finish();
     }
+
     @Override
     public void onBackPressed(){
         if(webView.canGoBack()) {
@@ -795,6 +931,7 @@ public class Nitter extends AppCompatActivity {
             webSeaching = false;
         }
     }
+
     @Override
     public boolean onSupportNavigateUp() {
         super.onBackPressed();

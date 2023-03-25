@@ -18,21 +18,32 @@ public class AudioService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         createNotiChannel();
+        String message = "TEST";
         Intent notiIntent = new Intent(this, Nitter.class);
-
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notiIntent, 0);
+
+        Intent testIntent = new Intent(this, AudioService.class);
+        testIntent.putExtra("toastMessage", message);
+        PendingIntent playIntent = PendingIntent.getBroadcast(
+                this, 0, testIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
 
         String input = intent.getStringExtra("inputExtra");
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Audio Service")
                 .setContentText(input)
                 .setSmallIcon(R.drawable.ic_globe)
+//                .setContentIntent(pendingIntent)
+                .addAction(R.mipmap.ic_launcher, "Play", pendingIntent)
+                .addAction(R.mipmap.ic_launcher, "Pause", pendingIntent)
                 .build();
         startForeground(1, notification);
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
+
+
 
     private void createNotiChannel() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
@@ -46,11 +57,18 @@ public class AudioService extends Service {
             manager.createNotificationChannel(serviceChannel);
         }
     }
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         stopForeground(true);
         stopSelf();
+        System.exit(0);
     }
 
     @Override

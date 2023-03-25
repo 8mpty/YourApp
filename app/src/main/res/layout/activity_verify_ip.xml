@@ -17,4 +17,18 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="246dp" />
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/exbtn"
+        android:layout_width="350px"
+        android:layout_height="250dp"
+        android:layout_below="@+id/tv"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="39dp"
+        android:layout_marginBottom="234dp"
+        android:text="Exit"
+        android:onClick="changeBool">
+
+    </androidx.appcompat.widget.AppCompatButton>
+
 </RelativeLayout>
