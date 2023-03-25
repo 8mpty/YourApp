@@ -54,7 +54,7 @@ public class ConnectionCheck extends AppCompatActivity{
         if(BuildConfig.DEBUG){
             Timber.plant(new Timber.DebugTree());
         }
-        
+
         Check();
     }
 
@@ -109,6 +109,8 @@ public class ConnectionCheck extends AppCompatActivity{
     @SuppressLint("SetTextI18n")
     private void VPNCheck() {
 
+
+        // https://stackoverflow.com/questions/28386553/check-if-a-vpn-connection-is-active-in-android
         ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network activeNetwork = cm.getActiveNetwork();
         NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
