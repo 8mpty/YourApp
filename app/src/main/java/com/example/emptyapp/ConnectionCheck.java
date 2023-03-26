@@ -99,7 +99,7 @@ public class ConnectionCheck extends AppCompatActivity{
             }
         }
         else{
-            Timber.tag("IP").e("NOT THE IP");
+            Timber.tag("IP ").e("DOES NOT MATCH");
             dia(IP_ADDR);
             ipstate = false;
         }
@@ -109,7 +109,6 @@ public class ConnectionCheck extends AppCompatActivity{
     @SuppressLint("SetTextI18n")
     private void VPNCheck() {
 
-
         // https://stackoverflow.com/questions/28386553/check-if-a-vpn-connection-is-active-in-android
         ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network activeNetwork = cm.getActiveNetwork();
@@ -117,11 +116,11 @@ public class ConnectionCheck extends AppCompatActivity{
         boolean vpnInUse = caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN);
 
         if(vpnInUse){
-            Timber.tag("VPN IS").e("USED");
+            Timber.tag("VPN IS").e("USE");
             vpnstate = true;
         }
         else{
-            Timber.tag("VPN IS").e("NOT USED");
+            Timber.tag("VPN IS").e("NOT IN USE");
             iv.setText("VPN IS NOT IN USE");
             vpnstate = false;
         }

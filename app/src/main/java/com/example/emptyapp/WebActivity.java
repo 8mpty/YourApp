@@ -193,7 +193,6 @@ public class WebActivity extends AppCompatActivity {
         if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
             menu.getItem(8).setEnabled(true);
             Log.e("STATUS_ACT", "Enabled");
-
         }
         // else if false
         else if(!pref.getBoolean(PREF_DEF_URL_ACT, false)){
@@ -240,10 +239,12 @@ public class WebActivity extends AppCompatActivity {
             }
         }
         else if(id == R.id.hist){
-            if(item.isChecked()) {
+            if(!item.isChecked()) {
+                clearHistory(true);
+            }
+            else {
                 clearHistory(false);
             }
-            else clearHistory(true);
         }
         else if(id == R.id.chk_ua){
             if(!item.isChecked()) {
@@ -562,7 +563,7 @@ public class WebActivity extends AppCompatActivity {
         // Websettings
         webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        webSettings.setAppCacheEnabled(true);
+//        webSettings.setAppCacheEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         webSettings.setBuiltInZoomControls(true);
         webSettings.setSupportZoom(true);
@@ -593,7 +594,6 @@ public class WebActivity extends AppCompatActivity {
         }
 
         webView.setOnScrollChangeListener(new Scroll());
-
         webView.setOnLongClickListener(v -> {
             if (toolbar.getVisibility() != View.VISIBLE) {
                 toolbar.setVisibility(View.VISIBLE);
@@ -638,11 +638,6 @@ public class WebActivity extends AppCompatActivity {
             editor.apply();
             Log.e("TEMP WEB URL IS ", (pref.getString(PREF_TEMP_URL, null)));
         }
-
-//        editor.remove(PREF_DEF_URL_ACT_LINK).apply();
-//        editor.remove(PREF_TEMP_URL).apply();
-//        editor.remove(pref.getString("pref_IpSave", null)).apply();
-//        Log.e("REMOVED", "REMOVED");
     }
 
     private void LoadURL(String actURL){
@@ -670,7 +665,7 @@ public class WebActivity extends AppCompatActivity {
 
         //Make sure no caching is done
         webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-        webView.getSettings().setAppCacheEnabled(false);
+//        webView.getSettings().setAppCacheEnabled(false);
         //webView.clearHistory();
         webView.clearCache(true);
 
@@ -888,17 +883,17 @@ public class WebActivity extends AppCompatActivity {
         webView.onResume();
     }
 
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        //startService(new Intent(WebActivity.this, AudioService.class));
-//        if(pref.getBoolean(PREF_SERVICE, false) &&
-//                pref.getBoolean("pref_DEV",false)){
-//            startService();
-//        }
-////        webView.onResume();
-////        startService();
-//    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //startService(new Intent(WebActivity.this, AudioService.class));
+        if(pref.getBoolean(PREF_SERVICE, false) &&
+                pref.getBoolean("pref_DEV",false)){
+            startService();
+        }
+//        webView.onResume();
+//        startService();
+    }
 
     @Override
     protected void onStop() {

@@ -71,6 +71,15 @@
         </SwitchPreference>
 
         <SwitchPreference
+            android:key="pref_BIO"
+            android:dependency="pref_LOCKSW"
+            android:title="Biometrics"
+            android:summary="Use Biometrics to unlock app"
+            app:iconSpaceReserved="false"
+            android:defaultValue="false">
+        </SwitchPreference>
+
+        <SwitchPreference
             android:key="pref_RANDKEYS"
             android:dependency="pref_LOCKSW"
             android:title="Randomize Keypad Numbers"
@@ -87,6 +96,7 @@
             app:iconSpaceReserved="false"
             android:defaultValue="1234">
         </EditTextPreference>
+
 
     </PreferenceCategory>
 

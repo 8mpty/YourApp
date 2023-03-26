@@ -21,12 +21,12 @@ public class AudioService extends Service {
         String message = "TEST";
         Intent notiIntent = new Intent(this, WebActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notiIntent, 0);
+                0, notiIntent, PendingIntent.FLAG_IMMUTABLE);
 
         Intent testIntent = new Intent(this, AudioService.class);
         testIntent.putExtra("toastMessage", message);
         PendingIntent playIntent = PendingIntent.getBroadcast(
-                this, 0, testIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                this, 0, testIntent, PendingIntent.FLAG_IMMUTABLE);
 
 
         String input = intent.getStringExtra("inputExtra");

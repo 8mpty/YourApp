@@ -11,16 +11,21 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.Executor;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,13 +42,19 @@ public class MainActivity extends AppCompatActivity {
     public static final String PREF_DEF_URL_ACT = "pref_def_ACT";
     public static final String PREF_DEV = "pref_DEV";
     public static final String PREF_IPTOG = "pref_IpTog";
-
     public static final String PREF_VPN = "pref_VpnTog";
+
+    public static final String PREF_BIO = "pref_BIO";
 
     private View keyboardLayout;
 
     private Button[] btn;
     private ArrayList<String> array = new ArrayList<String>();
+
+
+    ImageButton btnBio;
+    BiometricPrompt bioPrompt;
+    BiometricPrompt.PromptInfo bioPromptInfo;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -56,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
         pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         editor = pref.edit();
+
+        btnBio = findViewById(R.id.btnBio);
 
         txtPass = findViewById(R.id.txtpass);
         txtPass.setShowSoftInputOnFocus(false);
@@ -72,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
         txtPass.setOnTouchListener((v, event) -> {
             if(keyboardLayout.getVisibility() == View.GONE){
                 keyboardLayout.setVisibility(View.VISIBLE);
+                btnBio.setVisibility(View.GONE);
+                btnBio.setEnabled(false);
             }
             return false;
         });
@@ -82,6 +97,15 @@ public class MainActivity extends AppCompatActivity {
             RandomBtnNumbers();
         }
         else SetNormalBtnNumbers();
+
+        if(pref.getBoolean(PREF_BIO, false)){
+            btnBio.setVisibility(View.VISIBLE);
+            btnBio.setEnabled(true);
+        }
+        else{
+            btnBio.setVisibility(View.GONE);
+            btnBio.setEnabled(false);
+        }
     }
 
     private void BtnClick(){
@@ -128,6 +152,70 @@ public class MainActivity extends AppCompatActivity {
                 count = 0;
             }
         });
+
+
+        btnBio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Biometrics();
+            }
+        });
+
+    }
+
+    private void Biometrics(){
+        BiometricManager biometricManager = BiometricManager.from(this);
+        switch (biometricManager.canAuthenticate()){
+            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+                Toast.makeText(this, "BIOMETRICS ARE UNAVAILABLE ON THIS DEVICE!", Toast.LENGTH_SHORT).show();
+                break;
+
+            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+                Toast.makeText(this, "SOMETHING WENT WRONG!", Toast.LENGTH_SHORT).show();
+
+                break;
+
+            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                Toast.makeText(this, "THERE IS ARE NO FINGERPRINTS ASSIGNED!", Toast.LENGTH_SHORT).show();
+                break;
+        }
+
+        Executor executor = ContextCompat.getMainExecutor(this);
+        bioPrompt = new BiometricPrompt(MainActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                if((pref.getBoolean(PREF_DEV, false) &&
+                        pref.getBoolean(PREF_IPTOG, false)) ||
+                        (pref.getBoolean(PREF_DEV, false) &&
+                                pref.getBoolean(PREF_VPN,false))){
+                    startActivity(new Intent(MainActivity.this, ConnectionCheck.class));
+                }
+                else if(pref.getBoolean(PREF_DEF_URL_ACT, false)) {
+                    startActivity(new Intent(MainActivity.this, WebActivity.class));
+                }
+                else{
+                    startActivity(new Intent(MainActivity.this,WebLinksActivity.class));
+                }
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+            }
+        });
+
+        bioPromptInfo = new BiometricPrompt.PromptInfo.Builder().setTitle("Biometrics")
+                .setDescription("Use Fingerprints/Device Screen Lock To Proceed")
+                .setDeviceCredentialAllowed(true)
+                .build();
+
+        bioPrompt.authenticate(bioPromptInfo);
     }
 
     private void RandomBtnNumbers() {
@@ -224,6 +312,15 @@ public class MainActivity extends AppCompatActivity {
             RandomBtnNumbers();
         }
         else SetNormalBtnNumbers();
+
+        if(pref.getBoolean(PREF_BIO, false)){
+            btnBio.setVisibility(View.VISIBLE);
+            btnBio.setEnabled(true);
+        }
+        else{
+            btnBio.setVisibility(View.GONE);
+            btnBio.setEnabled(false);
+        }
     }
 
     @Override
@@ -268,9 +365,6 @@ public class MainActivity extends AppCompatActivity {
                             pref.getBoolean(PREF_VPN,false))){
                 startActivity(new Intent(this, ConnectionCheck.class));
             }
-//            else if(pref.getBoolean(PREF_VPN, false)){
-//                startActivity(new Intent(this, ConnectionCheck.class));
-//            }
             else if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
                 startActivity(new Intent(this, WebActivity.class));
             }
@@ -282,6 +376,8 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if(keyboardLayout.getVisibility() == View.VISIBLE){
             keyboardLayout.setVisibility(View.GONE);
+            btnBio.setVisibility(View.VISIBLE);
+            btnBio.setEnabled(true);
         }
         else {
             super.onBackPressed();
