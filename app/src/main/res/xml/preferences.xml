@@ -144,7 +144,7 @@
         <SwitchPreference
             android:dependency="pref_DEV"
             android:key="pref_Service"
-            android:title="Enable Service"
+            android:title="Enable Service (BROKEN AF!)"
             android:summary="Enable this to enable Foreground service, else disable"
             app:iconSpaceReserved="false">
         </SwitchPreference>
@@ -177,8 +177,9 @@
             android:dependency="pref_DEV"
             android:title="Enable Default Activity"
             android:defaultValue="false"
-            app:iconSpaceReserved="false"
-            android:enabled="false">
+            android:enabled="true"
+            android:summary=""
+            app:iconSpaceReserved="false">
         </SwitchPreferenceCompat>
 
     </PreferenceCategory>

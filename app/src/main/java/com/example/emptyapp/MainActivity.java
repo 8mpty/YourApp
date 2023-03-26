@@ -43,14 +43,12 @@ public class MainActivity extends AppCompatActivity {
     public static final String PREF_DEV = "pref_DEV";
     public static final String PREF_IPTOG = "pref_IpTog";
     public static final String PREF_VPN = "pref_VpnTog";
-
     public static final String PREF_BIO = "pref_BIO";
 
     private View keyboardLayout;
 
     private Button[] btn;
     private ArrayList<String> array = new ArrayList<String>();
-
 
     ImageButton btnBio;
     BiometricPrompt bioPrompt;
@@ -152,7 +150,6 @@ public class MainActivity extends AppCompatActivity {
                 count = 0;
             }
         });
-
 
         btnBio.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -334,7 +331,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-
             case R.id.btnSet:{
                 if(!item.isChecked()) {
                     startActivity(new Intent(MainActivity.this, SettingsActivity.class));

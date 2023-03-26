@@ -60,6 +60,8 @@ public class WebLinksActivity extends AppCompatActivity{
 
     String def_Url;
 
+    public static final String PREF_DEF_URL_ACT = "pref_def_ACT";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -353,6 +355,17 @@ public class WebLinksActivity extends AppCompatActivity{
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         linkModalArrayList.add(new LinkModal(et_WebName.getText().toString(), et_WebUrl.getText().toString()));
+                        adapter.notifyItemInserted(linkModalArrayList.size());
+                        saveData();
+                        dialog.dismiss();
+                    }
+                })
+                .setNeutralButton("Set as default launch", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        linkModalArrayList.add(new LinkModal(et_WebName.getText().toString(), et_WebUrl.getText().toString()));
+                        editor.putString(PREF_DEF_URL, et_WebUrl.getText().toString());
+                        editor.apply();
                         adapter.notifyItemInserted(linkModalArrayList.size());
                         saveData();
                         dialog.dismiss();

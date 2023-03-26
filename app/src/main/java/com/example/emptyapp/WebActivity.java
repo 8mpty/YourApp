@@ -19,7 +19,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -74,7 +73,10 @@ public class WebActivity extends AppCompatActivity {
     private boolean videoEnabled;
 
     AlertDialog alertDialog;
-    CharSequence[] values = {"Phone (Android 9, Chrome)", "Desktop (Windows 10, Chrome)"};
+    CharSequence[] values = {
+            "Phone (Android 9, Chrome)",
+            "Desktop (Windows 10, Chrome)"
+    };
 
     SharedPreferences pref;
     SharedPreferences.Editor editor;
@@ -89,14 +91,7 @@ public class WebActivity extends AppCompatActivity {
     private static final String PREF_FAVICON = "pref_favicon";
     public static final String PREF_DEF_URL_ACT = "pref_def_ACT";
 
-    private static final String PREF_DEF_URL_ACT_LINK = "pref_def_url_act_link";
-    private static final String PREF_TEMP_URL = "";
-    boolean PREF_DEF_CLICKED = true;
-
-
-
     private TextInputEditText et_WebName, et_WebUrl;
-
 
     String def_Url;
 
@@ -187,22 +182,21 @@ public class WebActivity extends AppCompatActivity {
         return true;
     }
 
-    public boolean onPrepareOptionsMenu(Menu menu) {
-
-        // If true
-        if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
-            menu.getItem(8).setEnabled(true);
-            Log.e("STATUS_ACT", "Enabled");
-        }
-        // else if false
-        else if(!pref.getBoolean(PREF_DEF_URL_ACT, false)){
-            menu.getItem(8).setEnabled(false);
-            editor.putBoolean(PREF_DEF_URL_ACT, false);
-            Log.e("STATUS_ACT", "Not Enabled");
-        }
-        editor.apply();
-        return super.onPrepareOptionsMenu(menu);
-    }
+//    public boolean onPrepareOptionsMenu(Menu menu) {
+//        // If true
+//        if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
+//            menu.getItem(8).setEnabled(true);
+//            Log.e("STATUS_ACT", "Enabled");
+//        }
+//        // else if false
+//        else if(!pref.getBoolean(PREF_DEF_URL_ACT, false)){
+//            menu.getItem(8).setEnabled(false);
+//            editor.putBoolean(PREF_DEF_URL_ACT, false);
+//            Log.e("STATUS_ACT", "Not Enabled");
+//        }
+//        editor.apply();
+//        return super.onPrepareOptionsMenu(menu);
+//    }
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -276,17 +270,6 @@ public class WebActivity extends AppCompatActivity {
                 cm.setPrimaryClip(cd);
                 Toast.makeText(this,"URL Copied", Toast.LENGTH_SHORT).show();
             }
-        }
-        else if(id == R.id.set_def_act_url){
-            if(!item.isChecked()) {
-                editor.putString(PREF_DEF_URL_ACT_LINK, PREF_TEMP_URL);
-                editor.putBoolean("clicked", true);
-                Log.e("WEB", pref.getString(PREF_DEF_URL_ACT_LINK, null));
-            }
-            else{
-                editor.putBoolean("clicked", false);
-            }
-            editor.apply();
         }
         return super.onOptionsItemSelected(item);
 //        switch (item.getItemId())
@@ -399,8 +382,7 @@ public class WebActivity extends AppCompatActivity {
 //        return true;
     }
 
-    public void HideTbDialog()
-    {
+    public void HideTbDialog() {
         // Custom Dialog to show *HIDE OR UN-HIDE TOOLBAR*
         AlertDialog.Builder builder = new AlertDialog.Builder(WebActivity.this)
                 .setTitle("Hide / Unhide Toolbar")
@@ -440,8 +422,7 @@ public class WebActivity extends AppCompatActivity {
         alertDialog = builder.create();
         alertDialog.show();
     }
-    public void saveCurWeb()
-    {
+    public void saveCurWeb() {
         AlertDialog.Builder alertDialogBuilder;
         alertDialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
@@ -532,8 +513,7 @@ public class WebActivity extends AppCompatActivity {
         }
     }
 
-    public class LockScreenReceiver extends  BroadcastReceiver
-    {
+    public class LockScreenReceiver extends  BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent)
         {
@@ -541,11 +521,12 @@ public class WebActivity extends AppCompatActivity {
             {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
                 {
-//                    webView.onResume();
+                    webView.onResume();
                 }
             }
         }
     }
+
     @SuppressLint({"SetJavaScriptEnabled", "ClickableViewAccessibility"})
     private void webStuff()
     {
@@ -563,7 +544,6 @@ public class WebActivity extends AppCompatActivity {
         // Websettings
         webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-//        webSettings.setAppCacheEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         webSettings.setBuiltInZoomControls(true);
         webSettings.setSupportZoom(true);
@@ -583,15 +563,9 @@ public class WebActivity extends AppCompatActivity {
         webView.setWebChromeClient(new MyChrome());
         webView.setWebViewClient(new MyWebViewClient());
 
-        // Check if true
-        if(pref.getBoolean(PREF_DEF_URL_ACT, false) &&
-                pref.getBoolean("clicked", false)){
-            //LoadURL(pref.getString(PREF_DEF_URL_ACT_LINK, null));
-            LoadURL(url);
-        }
-        else {
-            LoadURL(url);
-        }
+        if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
+            LoadURL(pref.getString(PREF_DEF_URL, null));
+        }else LoadURL(url);
 
         webView.setOnScrollChangeListener(new Scroll());
         webView.setOnLongClickListener(v -> {
@@ -630,20 +604,18 @@ public class WebActivity extends AppCompatActivity {
             }
         });
 
-        if(pref.getString(PREF_TEMP_URL, null) != null ||
-                pref.getString(PREF_TEMP_URL, null) == null) {
-
-            // Saves the original URL when user clicks on the Recycler view link
-            editor.putString(PREF_TEMP_URL, webView.getUrl());
-            editor.apply();
-            Log.e("TEMP WEB URL IS ", (pref.getString(PREF_TEMP_URL, null)));
-        }
+//        if(pref.getString(PREF_TEMP_URL, null) != null ||
+//                pref.getString(PREF_TEMP_URL, null) == null) {
+//
+//            // Saves the original URL when user clicks on the Recycler view link
+//            editor.putString(PREF_TEMP_URL, webView.getUrl());
+//            editor.apply();
+//            Log.e("TEMP WEB URL IS ", (pref.getString(PREF_TEMP_URL, null)));
+//        }
     }
 
     private void LoadURL(String actURL){
-
         boolean matchURL = Patterns.WEB_URL.matcher(actURL).matches();
-
         if(matchURL){
             webView.loadUrl(actURL);
         }
@@ -655,8 +627,6 @@ public class WebActivity extends AppCompatActivity {
                 webView.loadUrl(def_Url + "/?q=" + actURL);
             }
         }
-
-
     }
 
     private void InCognitoMode(){
@@ -665,7 +635,6 @@ public class WebActivity extends AppCompatActivity {
 
         //Make sure no caching is done
         webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-//        webView.getSettings().setAppCacheEnabled(false);
         //webView.clearHistory();
         webView.clearCache(true);
 
@@ -692,8 +661,7 @@ public class WebActivity extends AppCompatActivity {
         }
     }
 
-    private class MyWebViewClient extends WebViewClient
-    {
+    private class MyWebViewClient extends WebViewClient {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
@@ -723,7 +691,6 @@ public class WebActivity extends AppCompatActivity {
         CookieManager.getInstance().removeAllCookies(null);
         CookieManager.getInstance().flush();
     }
-
     private void ScriptsInjection(WebView view){
         pref.getBoolean(PREF_ADS, true);
 
@@ -781,13 +748,11 @@ public class WebActivity extends AppCompatActivity {
                     "parent.appendChild(script)" +
                     "})()");
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
-    private class MyChrome extends WebChromeClient
-    {
+    private class MyChrome extends WebChromeClient {
         private View mCustomView;
         private WebChromeClient.CustomViewCallback mCustomViewCallback;
         private int mOriginalOrientation;
@@ -857,9 +822,9 @@ public class WebActivity extends AppCompatActivity {
     public void startService(){
 
         Intent serviceIntent = new Intent(this, AudioService.class);
-        serviceIntent.putExtra("inputExtra", webView.getUrl());
+        serviceIntent.putExtra("inputExtra", "webView.getUrl()");
         startForegroundService(serviceIntent);
-//        webView.onResume();
+        webView.onResume();
     }
     public void stopService() {
         Intent serviceIntent = new Intent(this, AudioService.class);
@@ -869,6 +834,7 @@ public class WebActivity extends AppCompatActivity {
         editor.putString(PREF_UA, ua);
         editor.apply();
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -891,20 +857,15 @@ public class WebActivity extends AppCompatActivity {
                 pref.getBoolean("pref_DEV",false)){
             startService();
         }
-//        webView.onResume();
-//        startService();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
         if(pref.getBoolean(PREF_SERVICE, false) &&
                 pref.getBoolean("pref_DEV",false)) {
             startService();
         }
-
-//        webView.onResume();
     }
 
     @Override

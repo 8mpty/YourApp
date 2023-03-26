@@ -49,10 +49,8 @@ dependencies {
     implementation 'org.adblockplus:adblock-android-webview:4.4.0'
     implementation 'org.adblockplus:adblock-android-settings:+'
     implementation 'com.jakewharton.timber:timber:4.7.1'
-    implementation 'com.github.MonsterTechnoGits:WebViewAdblock:1.1'
     implementation 'com.squareup.okio:okio:3.1.0'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
-    implementation 'org.adblockplus:adblock-android:+'
     implementation 'com.github.RachitShah02:Webview-Video-Fullscreen:1.0.2'
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation "androidx.webkit:webkit:1.6.0"

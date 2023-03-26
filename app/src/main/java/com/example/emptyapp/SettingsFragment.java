@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreferenceCompat;
 
 import timber.log.Timber;
 
@@ -17,11 +18,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
 
-    public static final String PREF_DEF_URL_ACT = "pref_def_url_act";
-    public static final String PREF_DEV = "pref_DEV";
-    public static final String PREF_IPTOG = "pref_IpTog";
     public static final String PREF_IPSAVE = "";
-    public static final String PREF_DEF_ACT = "pref_def_ACT";
+    public static final String PREF_DEF_URL = "pref_def_url";
+
     SharedPreferences pref;
     SharedPreferences.Editor editor;
 
@@ -35,15 +34,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preferenceChangeListener = (sharedPreferences, key) -> {
             editor = sharedPreferences.edit();
             EditTextPreference ipt = (EditTextPreference) findPreference("pref_Ipa");
+            SwitchPreferenceCompat sw = (SwitchPreferenceCompat) findPreference("pref_def_ACT");
 
             if(BuildConfig.DEBUG){
                 Timber.plant(new Timber.DebugTree());
             }
 
-            if(ipt != null) {
-                String act_ip = ipt.getText();
-                saveIP(act_ip);
-                Timber.tag("IP SAVED IS ").e(act_ip);
+            if(key.equals("pref_Ipa")){
+                if(ipt != null) {
+                    String act_ip = ipt.getText();
+                    saveIP(act_ip);
+                    Timber.tag("IP SAVED IS ").e(act_ip);
+                }
             }
 
             if(key.equals(WebActivity.PREF_UA)){
@@ -55,12 +57,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 intent.setData(Uri.parse("package:com.example.emptyapp"));
                 startActivity(intent);
             }
+
+            if(key.equals("pref_def_ACT")){
+                if(sw != null){
+                    sw.setSummary(pref.getString(PREF_DEF_URL, null));
+                }
+            }
         };
 
         androidx.preference.EditTextPreference editTextPreference = getPreferenceManager().findPreference("pref_SecKey");
         assert editTextPreference != null;
         editTextPreference.setOnBindEditTextListener(editText -> editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED));
     }
+
 
     @Override
     public void onResume() {

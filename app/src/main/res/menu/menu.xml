@@ -67,13 +67,6 @@
     </item>
 
     <item
-        android:id="@+id/set_def_act_url"
-        android:title="Set Default Launch URL/Activity"
-        app:showAsAction="never">
-    </item>
-
-
-    <item
         android:id="@+id/menu_set"
         android:title="Settings"
         app:showAsAction="never">
