@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    tools:context=".WebLinksActivity">
+    tools:context="com.empty.yourapp.WebLinksActivity">
 
 
     <androidx.recyclerview.widget.RecyclerView

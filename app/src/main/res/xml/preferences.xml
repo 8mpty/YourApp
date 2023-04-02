@@ -22,8 +22,7 @@
             android:summary="%s"
             app:iconSpaceReserved="false"
             android:entries="@array/entry_Entries_URL"
-            android:entryValues="@array/entry_Values_URL"
-            android:defaultValue="2">
+            android:entryValues="@array/entry_Values_URL">
         </ListPreference>
 
         <SwitchPreference
@@ -105,21 +104,21 @@
         android:summary="*Some options still need Developer Mode to be enabled*"
         app:iconSpaceReserved="false">
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:key="pref_VpnTog"
             android:dependency="pref_DEV"
             android:title="VPN Connection"
             android:summary="Used to unlock app when Device is connected to any VPN"
             app:iconSpaceReserved="false">
-        </SwitchPreferenceCompat>
+        </SwitchPreference>
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:key="pref_IpTog"
             android:dependency="pref_DEV"
             android:title="IP Match"
             android:summary="Used to unlock app when Device IP Matches"
             app:iconSpaceReserved="false">
-        </SwitchPreferenceCompat>
+        </SwitchPreference>
 
         <EditTextPreference
             android:key="pref_Ipa"
@@ -165,14 +164,14 @@
             android:defaultValue="false">
         </SwitchPreference>
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:key="pref_STORAGE"
             android:dependency="pref_DEV"
             android:title="ENABLE STORAGE PERMS"
             app:iconSpaceReserved="false">
-        </SwitchPreferenceCompat>
+        </SwitchPreference>
 
-        <SwitchPreferenceCompat
+        <SwitchPreference
             android:key="pref_def_ACT"
             android:dependency="pref_DEV"
             android:title="Enable Default Activity"
@@ -180,7 +179,7 @@
             android:enabled="true"
             android:summary=""
             app:iconSpaceReserved="false">
-        </SwitchPreferenceCompat>
+        </SwitchPreference>
 
     </PreferenceCategory>
 

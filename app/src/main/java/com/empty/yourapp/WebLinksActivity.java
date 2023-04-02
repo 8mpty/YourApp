@@ -1,4 +1,4 @@
-package com.example.emptyapp;
+package com.empty.yourapp;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Canvas;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.emptyapp.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -60,8 +62,6 @@ public class WebLinksActivity extends AppCompatActivity{
 
     String def_Url;
 
-    public static final String PREF_DEF_URL_ACT = "pref_def_ACT";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,10 +87,46 @@ public class WebLinksActivity extends AppCompatActivity{
         if(pref.getBoolean(PREF_STORAGE,false)){
             permCheck();
         }
+
+        SharedPreferences startpref = getSharedPreferences("start", MODE_PRIVATE);
+        boolean firstStart = startpref.getBoolean("firstStart", true);
+
+        if(firstStart){
+            showStart();
+        }
+    }
+
+    private void showStart(){
+        new AlertDialog.Builder(this)
+                .setTitle("First Launched")
+                .setMessage("Please choose a *Default Search URL* in settings!")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(WebLinksActivity.this, SettingsActivity.class));
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create()
+                .show();
+
+        SharedPreferences startpref = getSharedPreferences("start", MODE_PRIVATE);
+        SharedPreferences.Editor editFirst = startpref.edit();
+
+        editFirst.putBoolean("firstStart", false);
+        editFirst.apply();
     }
 
     private void permCheck(){
-        if(ContextCompat.checkSelfPermission(WebLinksActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if(ContextCompat.checkSelfPermission(WebLinksActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) +
+                ContextCompat.checkSelfPermission(WebLinksActivity.this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED){
             setNewDir();
         }
@@ -100,7 +136,28 @@ public class WebLinksActivity extends AppCompatActivity{
     }
 
     private void permAsk(){
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+        if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE + Manifest.permission.READ_EXTERNAL_STORAGE)){
+            new AlertDialog.Builder(this)
+                    .setTitle("Permissions Needed")
+                    .setMessage("This permission is needed for directory making")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            ActivityCompat.requestPermissions(WebLinksActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .create()
+                    .show();
+        }
+        else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+        }
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -108,8 +165,12 @@ public class WebLinksActivity extends AppCompatActivity{
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if(requestCode == STORAGE_PERMISSION_CODE){
-            if(permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                setNewDir();
+            if(permissions.length > 0){
+                boolean writePerms = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                boolean readPerms = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                if(writePerms && readPerms){
+                    setNewDir();
+                }
             }else{
                 Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show();
             }
@@ -118,12 +179,8 @@ public class WebLinksActivity extends AppCompatActivity{
 
 
     private void setNewDir(){
-//        String newPath = Environment.getExternalStorageDirectory() + "/" + ".EmptyHidden";
-        String newPath = getExternalFilesDir(".EmptyHidden").getAbsolutePath();
-//        File mydir = new File(getApplicationContext().getExternalFilesDir(".EmptyHidden").getAbsolutePath());
-        File mydir = new File(newPath);
-
-//        File mydir = new File(Environment.getDataDirectory(),".EmptyHidden");
+//        File mydir = new File(Environment.getExternalStorageDirectory() + "/.EmptyHidden");
+        File mydir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/EmptyHidden");
 
         if (!mydir.exists()) {
             mydir.mkdir();

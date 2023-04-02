@@ -9,15 +9,14 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
 
-    <uses-permission
-        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
     <application
+        android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher_new"
@@ -27,23 +26,23 @@
         android:theme="@style/Theme.EmptyApp"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".WebLinksActivity"
+            android:name="com.empty.yourapp.WebLinksActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.empty.yourapp.SettingsActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.empty.yourapp.MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name=".WebActivity"
+            android:name="com.empty.yourapp.WebActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name=".LockScreenManager"
+            android:name="com.empty.yourapp.LockScreenManager"
             android:configChanges="orientation|screenSize"
             android:exported="true">
             <intent-filter>
@@ -53,13 +52,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ConnectionCheck"
+            android:name="com.empty.yourapp.ConnectionCheck"
             android:configChanges="orientation|screenSize"
             android:exported="true">
         </activity>
 
 <!--        <service android:name=".MyService" />-->
-        <service android:name=".AudioService"/>
+        <service android:name="com.empty.yourapp.AudioService"/>
 
     </application>
 

@@ -1,4 +1,4 @@
-package com.example.emptyapp;
+package com.empty.yourapp;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -10,6 +10,8 @@ import android.os.Build;
 import android.os.IBinder;
 
 import androidx.core.app.NotificationCompat;
+
+import com.example.emptyapp.R;
 
 public class AudioService extends Service {
 
@@ -26,7 +28,7 @@ public class AudioService extends Service {
         Intent testIntent = new Intent(this, AudioService.class);
         testIntent.putExtra("toastMessage", message);
         PendingIntent playIntent = PendingIntent.getBroadcast(
-                this, 0, testIntent, PendingIntent.FLAG_IMMUTABLE);
+                this, 0, testIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
         String input = intent.getStringExtra("inputExtra");
@@ -34,15 +36,14 @@ public class AudioService extends Service {
                 .setContentTitle("Audio Service")
                 .setContentText(input)
                 .setSmallIcon(R.drawable.ic_globe)
-//                .setContentIntent(pendingIntent)
-                .addAction(R.mipmap.ic_launcher, "Play", pendingIntent)
-                .addAction(R.mipmap.ic_launcher, "Pause", pendingIntent)
+                .setContentIntent(pendingIntent)
+                .addAction(R.mipmap.ic_launcher, "Play", playIntent)
+                .addAction(R.mipmap.ic_launcher, "Pause", playIntent)
                 .build();
         startForeground(1, notification);
 
         return START_NOT_STICKY;
     }
-
 
 
     private void createNotiChannel() {

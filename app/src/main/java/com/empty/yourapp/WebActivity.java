@@ -1,9 +1,8 @@
-package com.example.emptyapp;
+package com.empty.yourapp;
 
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -16,9 +15,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -30,11 +32,10 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
-import android.webkit.URLUtil;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -48,12 +49,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+import androidx.webkit.WebViewClientCompat;
 
+import com.example.emptyapp.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 
+import org.adblockplus.libadblockplus.android.settings.AdblockHelper;
+import org.adblockplus.libadblockplus.android.settings.AdblockSettings;
+import org.adblockplus.libadblockplus.android.settings.AdblockSettingsStorage;
 import org.adblockplus.libadblockplus.android.webview.AdblockWebView;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -81,6 +88,8 @@ public class WebActivity extends AppCompatActivity {
     SharedPreferences pref;
     SharedPreferences.Editor editor;
 
+    public static String SHARED_PREF_STR = "shared_pref_str";
+
     private static final String PREF_TB = "pref_TB";
     public static final String PREF_UA = "UA";
     private static final String PREF_ADS = "pref_ads";
@@ -103,6 +112,7 @@ public class WebActivity extends AppCompatActivity {
     private ImageView iv , backIc;
 
     public static boolean webSeaching = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +152,10 @@ public class WebActivity extends AppCompatActivity {
 
         webStuff();
 
+        pb.getProgressDrawable()
+                .setColorFilter(Color.rgb(255,255,255),
+                        android.graphics.PorterDuff.Mode.SRC_IN);
+
         urlText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -156,7 +170,6 @@ public class WebActivity extends AppCompatActivity {
                 return false;
             }
         });
-        pb.getProgressDrawable().setColorFilter(Color.rgb(255,255,255), android.graphics.PorterDuff.Mode.SRC_IN);
 
         if(webSeaching){
             urlText.setVisibility(View.VISIBLE);
@@ -182,7 +195,7 @@ public class WebActivity extends AppCompatActivity {
         return true;
     }
 
-//    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
 //        // If true
 //        if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
 //            menu.getItem(8).setEnabled(true);
@@ -195,14 +208,19 @@ public class WebActivity extends AppCompatActivity {
 //            Log.e("STATUS_ACT", "Not Enabled");
 //        }
 //        editor.apply();
-//        return super.onPrepareOptionsMenu(menu);
-//    }
+        return super.onPrepareOptionsMenu(menu);
+    }
 
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if(id == R.id.chk_vid){
+        if(id == R.id.menu_refresh){
+            if(!item.isChecked()){
+                webView.reload();
+            }
+        }
+        else if(id == R.id.chk_vid){
             if(item.isChecked()) {
                 item.setChecked(false);
                 videoEnabled = false;
@@ -272,114 +290,6 @@ public class WebActivity extends AppCompatActivity {
             }
         }
         return super.onOptionsItemSelected(item);
-//        switch (item.getItemId())
-//        {
-//            case R.id.menu_refresh:
-//                if(!item.isChecked()){
-//                    webView.reload();
-//                }
-//                break;
-//
-//            case R.id.chk_vid:
-//                if(item.isChecked()) {
-//                    item.setChecked(false);
-//                    videoEnabled = false;
-//                    webView.reload();
-//                    Toast.makeText(this, "VIDEO DISABLED", Toast.LENGTH_SHORT).show();
-//                }
-//                else {
-//                    item.setChecked(true);
-//                    videoEnabled = true;
-//                    webView.reload();
-//                    Toast.makeText(this, "VIDEO ENABLED", Toast.LENGTH_SHORT).show();
-//                }
-//                break;
-//
-//            case R.id.ad_guard:
-//                if(!item.isChecked()) {
-//                    SharedPreferences.Editor editor = pref.edit();
-//                    editor.putBoolean(PREF_ADS, true);
-//                    editor.apply();
-//                    webView.reload();
-//                }
-//                break;
-//
-//            case R.id.ad_16x:
-//                if(!item.isChecked()) {
-//                    SharedPreferences.Editor editor = pref.edit();
-//                    editor.putBoolean(PREF_ADS,false);
-//                    editor.apply();
-//                    webView.reload();
-//                }
-//                break;
-//
-//            case R.id.hist:
-//                if(item.isChecked()) {
-//                    clearHistory(false);
-//                }
-//                else clearHistory(true);
-//                break;
-//
-//            case R.id.chk_ua:
-//                if(!item.isChecked()) {
-//                    UaCustomDialog();
-//                }
-//                break;
-//
-//            case R.id.hidetb:
-//                if(!item.isChecked()) {
-//                    HideTbDialog();
-//                    editor.putBoolean(PREF_TB, true);
-//                    editor.commit();
-//                }
-//                break;
-//
-//            case R.id.menu_set:
-//                if(!item.isChecked()) {
-//                    startActivity(new Intent(WebActivity.this, SettingsActivity.class));
-//                }
-//                break;
-//
-//            case R.id.menu_saveWeb:
-//                if(!item.isChecked()) {
-//                    saveCurWeb();
-//                }
-//                break;
-//            case R.id.menu_copyLk:
-//                if(!item.isChecked()) {
-//                    String link = webView.getUrl();
-//                    ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-//                    ClipData cd = ClipData.newPlainText("LinkCopy", link);
-//                    cm.setPrimaryClip(cd);
-//                    Toast.makeText(this,"URL Copied", Toast.LENGTH_SHORT).show();
-//                }
-//                break;
-//            case R.id.set_def_act_url:
-//                SharedPreferences.Editor editor = pref.edit();
-//
-//                if(pref.getBoolean(PREF_DEF_URL_ACT,false)){
-//
-//                }
-//
-//                if(!item.isChecked() && !pref.getBoolean(PREF_DEF_URL_ACT,false)){
-//                    item.setChecked(true);
-//                    editor.putBoolean(PREF_DEF_URL_ACT,true);
-//                    editor.apply();
-//                }
-//                else if (pref.getBoolean(PREF_DEF_URL_ACT,true)){
-//                    item.setChecked(true);
-//                }
-//                else
-//                {
-//                    editor.putBoolean(PREF_DEF_URL_ACT,true);
-//                    editor.apply();
-//                }
-//                break;
-//
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//        return true;
     }
 
     public void HideTbDialog() {
@@ -530,6 +440,8 @@ public class WebActivity extends AppCompatActivity {
     @SuppressLint({"SetJavaScriptEnabled", "ClickableViewAccessibility"})
     private void webStuff()
     {
+//        readAdServers();
+
         // Webview
         webView = findViewById(R.id.webview);
         webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
@@ -552,7 +464,6 @@ public class WebActivity extends AppCompatActivity {
         webSettings.setJavaScriptCanOpenWindowsAutomatically(false);
         webSettings.setMediaPlaybackRequiresUserGesture(false);
         webSettings.setUserAgentString(ua);
-        webSettings.setDomStorageEnabled(true);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
         {
@@ -565,7 +476,9 @@ public class WebActivity extends AppCompatActivity {
 
         if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
             LoadURL(pref.getString(PREF_DEF_URL, null));
-        }else LoadURL(url);
+        }else {
+            LoadURL(url);
+        }
 
         webView.setOnScrollChangeListener(new Scroll());
         webView.setOnLongClickListener(v -> {
@@ -584,34 +497,88 @@ public class WebActivity extends AppCompatActivity {
         webView.setDownloadListener(new DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-                DownloadManager.Request request = new DownloadManager.Request(Uri.parse((url)));
+//                DownloadManager.Request request = new DownloadManager.Request(Uri.parse((url)));
+//
+//                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+//                String title = URLUtil.guessFileName(url, contentDisposition, mimetype);
+//                request.setMimeType(mimetype);
+//                String cookies = CookieManager.getInstance().getCookie(url);
+//                request.addRequestHeader("coockie", cookies);
+//                request.addRequestHeader("User-Agent", userAgent);
+//                request.setDescription("Downloading File...");
+//                request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
+//                request.allowScanningByMediaScanner();
+//                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//                String destFolder = Environment.getExternalStorageDirectory().getPath() + "/.EmptyHidden";
+//                request.setDestinationInExternalPublicDir(destFolder, title);
+//                dm.enqueue(request);
+//                registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
-                String title = URLUtil.guessFileName(url, contentDisposition, mimetype);
-                request.setMimeType(mimetype);
-                String cookies= CookieManager.getInstance().getCookie(url);
-                request.addRequestHeader("coockie", cookies);
-                request.addRequestHeader("User-Agent", userAgent);
-                request.setDescription("Downloading File...");
-                request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
-                request.allowScanningByMediaScanner();
-                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-//                File destFolder = new File(getApplicationContext().getExternalFilesDir(".EmptyHidden").getAbsolutePath());
-                String destFolder = getExternalFilesDir(".EmptyHidden").getAbsolutePath() + "/";
-                request.setDestinationInExternalPublicDir(destFolder,title);
-                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                dm.enqueue(request);
-
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
             }
         });
 
-//        if(pref.getString(PREF_TEMP_URL, null) != null ||
-//                pref.getString(PREF_TEMP_URL, null) == null) {
-//
-//            // Saves the original URL when user clicks on the Recycler view link
-//            editor.putString(PREF_TEMP_URL, webView.getUrl());
-//            editor.apply();
-//            Log.e("TEMP WEB URL IS ", (pref.getString(PREF_TEMP_URL, null)));
-//        }
+        if(!AdblockHelper.get().isInit()){
+            AdblockSettingsStorage storage = AdblockHelper
+                    .get()
+                    .init(this, getFilesDir().getAbsolutePath(), true, AdblockHelper.PREFERENCE_NAME)
+                    .getStorage();
+            AdblockSettings settings = storage.load();
+            if (settings == null) // not yet saved
+            {
+                settings = AdblockSettingsStorage.getDefaultSettings(this);
+            }
+
+            settings.setAdblockEnabled(true);
+            storage.save(settings);
+        }
+    }
+
+    BroadcastReceiver onComplete = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+//            Log.e("FILE", "DONE" );
+        }
+    };
+
+    private void Mover(String file){
+        String sourcePath = Environment.DIRECTORY_DOWNLOADS + "/" + file;
+        File source = new File(sourcePath);
+        Log.e("FILE SOURCE:" ,source.toString());
+
+        String destPath = Environment.getExternalStorageDirectory().getPath() + "/.EmptyHidden";
+        File dest = new File(destPath);
+        Log.e("FILE SOURCE:" ,dest.toString());
+
+
+        File tempFile = new File(Environment.DIRECTORY_DOWNLOADS,"temp_" + file);
+
+        boolean suc = source.renameTo(tempFile);
+
+        Log.e("FILE SOURCE:" ,tempFile.toString());
+
+        if(suc){
+            File newFile = new File(dest, tempFile.getName());
+            tempFile.renameTo(newFile);
+            Log.e("MOVING", newFile.toString());
+            Log.e("MOVING", newFile.toString());
+        }else{
+            Log.e("NO", "RENAMED");
+        }
+
+
+        if(tempFile.exists()){
+            File newFile = new File(dest, tempFile.getName());
+            tempFile.renameTo(newFile);
+            Log.e("MOVING", newFile.toString());
+            Log.e("MOVING", newFile.toString());
+        }
+        else{
+            Log.e("MOVING", "NOT EXSITS");
+        }
+
     }
 
     private void LoadURL(String actURL){
@@ -661,7 +628,7 @@ public class WebActivity extends AppCompatActivity {
         }
     }
 
-    private class MyWebViewClient extends WebViewClient {
+    private class MyWebViewClient extends WebViewClientCompat {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
@@ -685,6 +652,12 @@ public class WebActivity extends AppCompatActivity {
         public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
             super.doUpdateVisitedHistory(view, url, isReload);
             urlText.setText(webView.getUrl());
+        }
+
+        @Override
+        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+            super.onReceivedSslError(view, handler, error);
+            handler.proceed();
         }
     }
     public static void ClearCookies(){
@@ -807,6 +780,45 @@ public class WebActivity extends AppCompatActivity {
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -819,12 +831,65 @@ public class WebActivity extends AppCompatActivity {
         webView.restoreState(savedInstanceState);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public void startService(){
 
-        Intent serviceIntent = new Intent(this, AudioService.class);
-        serviceIntent.putExtra("inputExtra", "webView.getUrl()");
-        startForegroundService(serviceIntent);
-        webView.onResume();
+//        Intent serviceIntent = new Intent(this, AudioService.class);
+//        serviceIntent.putExtra("inputExtra", "webView.getUrl()");
+//        startForegroundService(serviceIntent);
+
+        Intent intent = new Intent(this, AudioService.class);
+        startService(intent);
     }
     public void stopService() {
         Intent serviceIntent = new Intent(this, AudioService.class);
@@ -835,16 +900,63 @@ public class WebActivity extends AppCompatActivity {
         editor.apply();
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @Override
     protected void onResume() {
         super.onResume();
 
         toolbarHide();
 
-        if(pref.getBoolean(PREF_SERVICE, false) &&
-                pref.getBoolean("pref_DEV",false)){
-            stopService();
-        }
+//        if(pref.getBoolean(PREF_SERVICE, false) &&
+//                pref.getBoolean("pref_DEV",false)){
+//            stopService();
+//        }
         webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
         webView.onResume();
     }
@@ -853,26 +965,30 @@ public class WebActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         //startService(new Intent(WebActivity.this, AudioService.class));
-        if(pref.getBoolean(PREF_SERVICE, false) &&
-                pref.getBoolean("pref_DEV",false)){
-            startService();
-        }
+//        if(pref.getBoolean(PREF_SERVICE, false) &&
+//                pref.getBoolean("pref_DEV",false)){
+//            Log.e("CALLED","SERVICE PAUSE");
+//            startService();
+//        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if(pref.getBoolean(PREF_SERVICE, false) &&
-                pref.getBoolean("pref_DEV",false)) {
-            startService();
-        }
+//        if(pref.getBoolean(PREF_SERVICE, false) &&
+//                pref.getBoolean("pref_DEV",false)){
+//            Log.e("CALLED","SERVICE STOP");
+//            startService();
+//        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         stopService();
-        webView.destroy();
+        if(webView != null){
+            webView.destroy();
+        }
         finish();
     }
 
@@ -884,7 +1000,9 @@ public class WebActivity extends AppCompatActivity {
         else {
             super.onBackPressed();
             onStop();
-            webView.destroy();
+            if(webView != null){
+                webView.destroy();
+            }
             webSeaching = false;
         }
     }
@@ -892,7 +1010,9 @@ public class WebActivity extends AppCompatActivity {
     @Override
     public boolean onSupportNavigateUp() {
         super.onBackPressed();
-        webView.destroy();
+        if(webView != null){
+            webView.destroy();
+        }
         webSeaching = false;
         return super.onSupportNavigateUp();
     }

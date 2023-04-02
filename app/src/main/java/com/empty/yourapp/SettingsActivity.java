@@ -1,9 +1,11 @@
-package com.example.emptyapp;
+package com.empty.yourapp;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import com.example.emptyapp.R;
 
 import java.util.Objects;
 

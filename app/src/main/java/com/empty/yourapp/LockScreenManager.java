@@ -1,4 +1,4 @@
-package com.example.emptyapp;
+package com.empty.yourapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,26 +28,28 @@ public class LockScreenManager extends AppCompatActivity {
     }
 
     private void Checks(){
+        boolean lockBool = pref.getBoolean(PREF_LOCKSW, false);
+        boolean actBool = pref.getBoolean(PREF_DEF_URL_ACT, false);
+        boolean devBool = pref.getBoolean(PREF_DEV, false);
+        boolean ipBool = pref.getBoolean(PREF_IPTOG, false);
+        boolean vpnBool = pref.getBoolean(PREF_VPN, false);
+
         // LOCKSCREEN SHOULD ALWAYS COMES FIRST IF ENABLED
-        // If lockscreen is true,
-        if(pref.getBoolean(PREF_LOCKSW, false)){
+        if(lockBool) {
             startActivity(new Intent(this, MainActivity.class));
         }
-        // If lockscreen is false,
         else{
-            if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
-                startActivity(new Intent(this, WebActivity.class));
+            if(actBool) {
+                if((devBool && ipBool) || (devBool && vpnBool)){
+                    startActivity(new Intent(this, ConnectionCheck.class));}
+                else {
+                    startActivity(new Intent(this, WebActivity.class));}
             }
             else{
-                if((pref.getBoolean(PREF_DEV, false) &&
-                        pref.getBoolean(PREF_IPTOG, false)) ||
-                        (pref.getBoolean(PREF_DEV, false) &&
-                                pref.getBoolean(PREF_VPN,false))){
-                    startActivity(new Intent(this, ConnectionCheck.class));
-                }
-                else{
-                    startActivity(new Intent(this, WebLinksActivity.class));
-                }
+                if((devBool && ipBool) || (devBool && vpnBool)) {
+                    startActivity(new Intent(this, ConnectionCheck.class));}
+                else {
+                    startActivity(new Intent(this, WebLinksActivity.class));}
             }
         }
         finish();

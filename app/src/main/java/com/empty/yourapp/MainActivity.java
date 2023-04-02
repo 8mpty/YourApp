@@ -1,4 +1,4 @@
-package com.example.emptyapp;
+package com.empty.yourapp;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -21,6 +21,8 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+
+import com.example.emptyapp.R;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -144,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             else OpenAct();
 
             count++;
-            if (count >= 8) {
+            if (count >= 10) {
                 toolbar.setVisibility(View.VISIBLE);
                 Toast.makeText(MainActivity.this,"UNLOCKED DEVELOPER SETTINGS", Toast.LENGTH_SHORT).show();
                 count = 0;

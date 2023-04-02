@@ -1,4 +1,4 @@
-package com.example.emptyapp;
+package com.empty.yourapp;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -14,18 +14,19 @@ import android.os.Bundle;
 import android.text.format.Formatter;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
+
+import com.example.emptyapp.BuildConfig;
+import com.example.emptyapp.R;
 
 import timber.log.Timber;
 
 public class ConnectionCheck extends AppCompatActivity{
 
     private TextView iv;
-    private Button btn;
 
     SharedPreferences pref;
     SharedPreferences.Editor editor;
@@ -46,7 +47,6 @@ public class ConnectionCheck extends AppCompatActivity{
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         iv = findViewById(R.id.tv);
-        btn = findViewById(R.id.exbtn);
 
         pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         editor = pref.edit();
@@ -59,28 +59,28 @@ public class ConnectionCheck extends AppCompatActivity{
     }
 
     private void Check(){
-        if(pref.getBoolean(PREF_IP, false)){
+        boolean ipBool = pref.getBoolean(PREF_IP, false);
+        boolean vpnBool = pref.getBoolean(PREF_VPN, false);
+
+        if(ipBool){
             IPCheck();
         }
 
-        if(pref.getBoolean(PREF_VPN,false)){
+        if(vpnBool){
             VPNCheck();
         }
 
-        if(pref.getBoolean(PREF_IP, false) &&
-                !pref.getBoolean(PREF_VPN,false)){
+        if(ipBool && !vpnBool){
             if(ipstate){
                 startActivity(new Intent(this, WebLinksActivity.class));
             }
         }
-        else if(!pref.getBoolean(PREF_IP, false) &&
-                pref.getBoolean(PREF_VPN,false)){
+        else if(!ipBool && vpnBool){
             if(vpnstate){
                 startActivity(new Intent(this, WebLinksActivity.class));
             }
         }
-        else if(pref.getBoolean(PREF_IP, false) &&
-                pref.getBoolean(PREF_VPN,false)){
+        else if(ipBool && vpnBool){
             if(ipstate && vpnstate){
                 startActivity(new Intent(this, WebLinksActivity.class));
             }
@@ -106,9 +106,9 @@ public class ConnectionCheck extends AppCompatActivity{
         iv.setText(IP_ADDR);
     }
 
+
     @SuppressLint("SetTextI18n")
     private void VPNCheck() {
-
         // https://stackoverflow.com/questions/28386553/check-if-a-vpn-connection-is-active-in-android
         ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network activeNetwork = cm.getActiveNetwork();
@@ -116,8 +116,13 @@ public class ConnectionCheck extends AppCompatActivity{
         boolean vpnInUse = caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN);
 
         if(vpnInUse){
-            Timber.tag("VPN IS").e("USE");
-            vpnstate = true;
+            if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
+                startActivity(new Intent(this, WebActivity.class));
+            }
+            else {
+                Timber.tag("VPN IS").e("USE");
+                vpnstate = true;
+            }
         }
         else{
             Timber.tag("VPN IS").e("NOT IN USE");
@@ -143,9 +148,7 @@ public class ConnectionCheck extends AppCompatActivity{
 
 
     public void changeBool(View v){
-        String boolval = String.valueOf(boola);
         boola = !boola;
         startActivity(new Intent(this, SettingsActivity.class));
-        Timber.tag("BOOL").e(boolval);
     }
 }
