@@ -1,4 +1,4 @@
-package com.empty.yourapp;
+package com.empty.yourapp.RecyclerViewManagements;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.empty.yourapp.WebActivity;
 import com.example.emptyapp.R;
 import com.google.gson.Gson;
 

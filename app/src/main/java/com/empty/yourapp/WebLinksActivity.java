@@ -28,6 +28,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.empty.yourapp.RecyclerViewManagements.LinkModal;
+import com.empty.yourapp.RecyclerViewManagements.WebLinkAdapter;
+import com.empty.yourapp.Settings.SettingsActivity;
 import com.example.emptyapp.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
@@ -180,7 +183,8 @@ public class WebLinksActivity extends AppCompatActivity{
 
     private void setNewDir(){
 //        File mydir = new File(Environment.getExternalStorageDirectory() + "/.EmptyHidden");
-        File mydir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/EmptyHidden");
+        File mydir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS) + "/EmptyHidden");
 
         if (!mydir.exists()) {
             mydir.mkdir();
@@ -190,7 +194,11 @@ public class WebLinksActivity extends AppCompatActivity{
         }
     }
 
-    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT){
+    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP |
+            ItemTouchHelper.DOWN |
+            ItemTouchHelper.START |
+            ItemTouchHelper.END,
+            ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT){
 
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {

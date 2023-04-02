@@ -51,6 +51,9 @@ import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 import androidx.webkit.WebViewClientCompat;
 
+import com.empty.yourapp.RecyclerViewManagements.LinkModal;
+import com.empty.yourapp.Services.AudioService;
+import com.empty.yourapp.Settings.SettingsActivity;
 import com.example.emptyapp.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
@@ -292,7 +295,7 @@ public class WebActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void HideTbDialog() {
+    private void HideTbDialog() {
         // Custom Dialog to show *HIDE OR UN-HIDE TOOLBAR*
         AlertDialog.Builder builder = new AlertDialog.Builder(WebActivity.this)
                 .setTitle("Hide / Unhide Toolbar")
@@ -306,7 +309,7 @@ public class WebActivity extends AppCompatActivity {
         alertDialog = builder.create();
         alertDialog.show();
     }
-    public void UaCustomDialog()
+    private void UaCustomDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(WebActivity.this)
                 .setTitle("Change User Agent")
@@ -332,7 +335,7 @@ public class WebActivity extends AppCompatActivity {
         alertDialog = builder.create();
         alertDialog.show();
     }
-    public void saveCurWeb() {
+    private void saveCurWeb() {
         AlertDialog.Builder alertDialogBuilder;
         alertDialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
@@ -398,13 +401,7 @@ public class WebActivity extends AppCompatActivity {
         // below line is to save data in shared
         // prefs in the form of string.
         editor.putString("links", json);
-
-        // below line is to apply changes
-        // and save data in shared prefs.
         editor.apply();
-
-        // after saving data we are displaying a toast message.
-        //Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
     }
     // When User Scrolls, Toolbar will get hidden and unhidden automatically if reaches the top.
     private class Scroll implements View.OnScrollChangeListener {
@@ -423,14 +420,12 @@ public class WebActivity extends AppCompatActivity {
         }
     }
 
-    public class LockScreenReceiver extends  BroadcastReceiver {
+    private static class LockScreenReceiver extends  BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            if (intent != null && intent.getAction() != null)
-            {
-                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
-                {
+            if (intent != null && intent.getAction() != null) {
+                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                     webView.onResume();
                 }
             }
@@ -440,8 +435,6 @@ public class WebActivity extends AppCompatActivity {
     @SuppressLint({"SetJavaScriptEnabled", "ClickableViewAccessibility"})
     private void webStuff()
     {
-//        readAdServers();
-
         // Webview
         webView = findViewById(R.id.webview);
         webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
@@ -498,7 +491,6 @@ public class WebActivity extends AppCompatActivity {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
 //                DownloadManager.Request request = new DownloadManager.Request(Uri.parse((url)));
-//
 //                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 //                String title = URLUtil.guessFileName(url, contentDisposition, mimetype);
 //                request.setMimeType(mimetype);
@@ -536,12 +528,12 @@ public class WebActivity extends AppCompatActivity {
         }
     }
 
-    BroadcastReceiver onComplete = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
+//    BroadcastReceiver onComplete = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
 //            Log.e("FILE", "DONE" );
-        }
-    };
+//        }
+//    };
 
     private void Mover(String file){
         String sourcePath = Environment.DIRECTORY_DOWNLOADS + "/" + file;
@@ -660,17 +652,19 @@ public class WebActivity extends AppCompatActivity {
             handler.proceed();
         }
     }
-    public static void ClearCookies(){
+    private static void ClearCookies(){
         CookieManager.getInstance().removeAllCookies(null);
         CookieManager.getInstance().flush();
     }
     private void ScriptsInjection(WebView view){
-        pref.getBoolean(PREF_ADS, true);
+
+        // https://stackoverflow.com/questions/21552912/android-web-view-inject-local-javascript-file-to-remote-webpage
+        boolean ads = pref.getBoolean(PREF_ADS, true);
 
         // Remove Sign In Button on YT Music //
         injectScriptFile(view , "scripts/rm_signIN.js");
 
-        if(pref.getBoolean(PREF_ADS,true)){
+        if(ads){
             // Remove ALL YT or YT Music Ads using AdGuard //
             injectScriptFile(view , "scripts/adguard_yt.js");
         }
@@ -687,12 +681,11 @@ public class WebActivity extends AppCompatActivity {
 
         // Allow Background Playback for YT Music but not Youtube.com
         //  ̶T̶O̶D̶O̶ ̶W̶O̶R̶K̶S̶ ̶S̶O̶M̶E̶T̶I̶M̶E̶S̶ ̶N̶O̶W̶
-        // FIXED? ONLY IN YT MUSIC
+        // FIXED? ONLY IN YT MUSIC (LMAO KMS PLZ)
         // injectScriptFile(view , "scripts/bk.js");
         injectScriptFile(view , "scripts/bk_2.js");
 
-        //injectScriptFile(view , "scripts/mute.js");
-
+        // When did I add this? :(
         injectScriptFile(view , "scripts/adguard_extra.js");
 
         if(!videoEnabled) {
@@ -889,7 +882,7 @@ public class WebActivity extends AppCompatActivity {
 //        startForegroundService(serviceIntent);
 
         Intent intent = new Intent(this, AudioService.class);
-        startService(intent);
+        startForegroundService(intent);
     }
     public void stopService() {
         Intent serviceIntent = new Intent(this, AudioService.class);
@@ -950,13 +943,13 @@ public class WebActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
         toolbarHide();
 
-//        if(pref.getBoolean(PREF_SERVICE, false) &&
-//                pref.getBoolean("pref_DEV",false)){
-//            stopService();
-//        }
+        if(pref.getBoolean(PREF_SERVICE, false) &&
+                pref.getBoolean("pref_DEV",false)){
+            stopService();
+        }
+
         webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
         webView.onResume();
     }
@@ -965,21 +958,21 @@ public class WebActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         //startService(new Intent(WebActivity.this, AudioService.class));
-//        if(pref.getBoolean(PREF_SERVICE, false) &&
-//                pref.getBoolean("pref_DEV",false)){
-//            Log.e("CALLED","SERVICE PAUSE");
-//            startService();
-//        }
+        if(pref.getBoolean(PREF_SERVICE, false) &&
+                pref.getBoolean("pref_DEV",false)){
+            Log.e("CALLED","SERVICE PAUSE");
+            startService();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-//        if(pref.getBoolean(PREF_SERVICE, false) &&
-//                pref.getBoolean("pref_DEV",false)){
-//            Log.e("CALLED","SERVICE STOP");
-//            startService();
-//        }
+        if(pref.getBoolean(PREF_SERVICE, false) &&
+                pref.getBoolean("pref_DEV",false)){
+            Log.e("CALLED","SERVICE STOP");
+            startService();
+        }
     }
 
     @Override

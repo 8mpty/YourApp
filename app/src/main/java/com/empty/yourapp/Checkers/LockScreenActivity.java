@@ -1,4 +1,4 @@
-package com.empty.yourapp;
+package com.empty.yourapp.Checkers;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -22,6 +22,9 @@ import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import com.empty.yourapp.Settings.SettingsActivity;
+import com.empty.yourapp.WebActivity;
+import com.empty.yourapp.WebLinksActivity;
 import com.example.emptyapp.R;
 
 import java.util.ArrayList;
@@ -29,7 +32,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.Executor;
 
-public class MainActivity extends AppCompatActivity {
+public class LockScreenActivity extends AppCompatActivity {
 
     private EditText txtPass;
     private Toolbar toolbar;
@@ -148,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             count++;
             if (count >= 10) {
                 toolbar.setVisibility(View.VISIBLE);
-                Toast.makeText(MainActivity.this,"UNLOCKED DEVELOPER SETTINGS", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LockScreenActivity.this,"UNLOCKED DEVELOPER SETTINGS", Toast.LENGTH_SHORT).show();
                 count = 0;
             }
         });
@@ -180,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Executor executor = ContextCompat.getMainExecutor(this);
-        bioPrompt = new BiometricPrompt(MainActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
+        bioPrompt = new BiometricPrompt(LockScreenActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
@@ -193,13 +196,13 @@ public class MainActivity extends AppCompatActivity {
                         pref.getBoolean(PREF_IPTOG, false)) ||
                         (pref.getBoolean(PREF_DEV, false) &&
                                 pref.getBoolean(PREF_VPN,false))){
-                    startActivity(new Intent(MainActivity.this, ConnectionCheck.class));
+                    startActivity(new Intent(LockScreenActivity.this, ConnectionCheck.class));
                 }
                 else if(pref.getBoolean(PREF_DEF_URL_ACT, false)) {
-                    startActivity(new Intent(MainActivity.this, WebActivity.class));
+                    startActivity(new Intent(LockScreenActivity.this, WebActivity.class));
                 }
                 else{
-                    startActivity(new Intent(MainActivity.this,WebLinksActivity.class));
+                    startActivity(new Intent(LockScreenActivity.this, WebLinksActivity.class));
                 }
             }
 
@@ -335,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.btnSet:{
                 if(!item.isChecked()) {
-                    startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                    startActivity(new Intent(LockScreenActivity.this, SettingsActivity.class));
                 }
             }
             break;

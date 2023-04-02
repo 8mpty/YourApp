@@ -1,4 +1,4 @@
-package com.empty.yourapp;
+package com.empty.yourapp.Services;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -11,6 +11,7 @@ import android.os.IBinder;
 
 import androidx.core.app.NotificationCompat;
 
+import com.empty.yourapp.WebActivity;
 import com.example.emptyapp.R;
 
 public class AudioService extends Service {
@@ -23,12 +24,12 @@ public class AudioService extends Service {
         String message = "TEST";
         Intent notiIntent = new Intent(this, WebActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notiIntent, PendingIntent.FLAG_IMMUTABLE);
+                0, notiIntent, PendingIntent.FLAG_MUTABLE);
 
         Intent testIntent = new Intent(this, AudioService.class);
         testIntent.putExtra("toastMessage", message);
         PendingIntent playIntent = PendingIntent.getBroadcast(
-                this, 0, testIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                this, 0, testIntent, PendingIntent.FLAG_MUTABLE);
 
 
         String input = intent.getStringExtra("inputExtra");

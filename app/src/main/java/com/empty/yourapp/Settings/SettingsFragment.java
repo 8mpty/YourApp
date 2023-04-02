@@ -1,4 +1,4 @@
-package com.empty.yourapp;
+package com.empty.yourapp.Settings;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +13,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreference;
 
+import com.empty.yourapp.WebActivity;
 import com.example.emptyapp.BuildConfig;
 import com.example.emptyapp.R;
 

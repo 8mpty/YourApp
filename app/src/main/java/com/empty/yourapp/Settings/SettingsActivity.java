@@ -1,4 +1,4 @@
-package com.empty.yourapp;
+package com.empty.yourapp.Settings;
 
 import android.os.Bundle;
 

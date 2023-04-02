@@ -1,4 +1,4 @@
-package com.empty.yourapp;
+package com.empty.yourapp.Checkers;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -6,6 +6,9 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
+
+import com.empty.yourapp.WebActivity;
+import com.empty.yourapp.WebLinksActivity;
 
 public class LockScreenManager extends AppCompatActivity {
 
@@ -36,7 +39,7 @@ public class LockScreenManager extends AppCompatActivity {
 
         // LOCKSCREEN SHOULD ALWAYS COMES FIRST IF ENABLED
         if(lockBool) {
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, LockScreenActivity.class));
         }
         else{
             if(actBool) {

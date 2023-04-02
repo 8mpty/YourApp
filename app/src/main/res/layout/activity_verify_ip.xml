@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    tools:context="com.empty.yourapp.ConnectionCheck">
+    tools:context="com.empty.yourapp.Checkers.ConnectionCheck">
 
     <TextView
         android:id="@+id/tv"

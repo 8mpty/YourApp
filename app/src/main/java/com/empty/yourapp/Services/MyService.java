@@ -1,4 +1,4 @@
-package com.empty.yourapp;
+package com.empty.yourapp.Services;
 
 import android.app.Service;
 import android.content.Intent;
@@ -8,6 +8,8 @@ import android.os.IBinder;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+
+import com.empty.yourapp.WebActivity;
 
 import java.io.IOException;
 
@@ -27,22 +29,19 @@ public class MyService extends Service {
         Toast.makeText(this, "Service created", Toast.LENGTH_SHORT).show();
         mediaPlayer = new MediaPlayer();
 
-//        url = WebActivity.webView.getUrl();
+        url = WebActivity.webView.getUrl();
 
         uri = Uri.parse(url);
         try {
             mediaPlayer.setDataSource(url);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
             mediaPlayer.prepare();
+            mediaPlayer.start();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-//        mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
         mediaPlayer.setLooping(false);
     }
      public void onStart(Intent intent, int startid){

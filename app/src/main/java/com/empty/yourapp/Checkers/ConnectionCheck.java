@@ -1,4 +1,4 @@
-package com.empty.yourapp;
+package com.empty.yourapp.Checkers;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -19,6 +19,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
+import com.empty.yourapp.Settings.SettingsActivity;
+import com.empty.yourapp.WebActivity;
+import com.empty.yourapp.WebLinksActivity;
 import com.example.emptyapp.BuildConfig;
 import com.example.emptyapp.R;
 
@@ -31,6 +34,7 @@ public class ConnectionCheck extends AppCompatActivity{
     SharedPreferences pref;
     SharedPreferences.Editor editor;
 
+    public static final String PREF_DEV = "pref_DEV";
     public static final String PREF_IPSAVE = "pref_Ipa";
     public static final String PREF_DEF_URL_ACT = "pref_def_ACT";
     public static final String PREF_VPN = "pref_VpnTog";
@@ -88,11 +92,16 @@ public class ConnectionCheck extends AppCompatActivity{
     }
 
     private void IPCheck(){
+        String ipsave = pref.getString(PREF_IPSAVE,null);
+        boolean devBool = pref.getBoolean(PREF_DEV, false);
+        boolean defAct = pref.getBoolean(PREF_DEF_URL_ACT, false);
+
+
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         String IP_ADDR = Formatter.formatIpAddress(wifiManager.getConnectionInfo().getIpAddress());
 
-        if (IP_ADDR.equals(pref.getString(PREF_IPSAVE,null))){
-            if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
+        if (IP_ADDR.equals(ipsave)){
+            if(devBool && defAct){
                 startActivity(new Intent(this, WebActivity.class));
             }else {
                 ipstate = true;
@@ -100,7 +109,7 @@ public class ConnectionCheck extends AppCompatActivity{
         }
         else{
             Timber.tag("IP ").e("DOES NOT MATCH");
-            dia(IP_ADDR);
+            Dialog(IP_ADDR);
             ipstate = false;
         }
         iv.setText(IP_ADDR);
@@ -109,6 +118,9 @@ public class ConnectionCheck extends AppCompatActivity{
 
     @SuppressLint("SetTextI18n")
     private void VPNCheck() {
+        boolean devBool = pref.getBoolean(PREF_DEV, false);
+        boolean defAct = pref.getBoolean(PREF_DEF_URL_ACT, false);
+
         // https://stackoverflow.com/questions/28386553/check-if-a-vpn-connection-is-active-in-android
         ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network activeNetwork = cm.getActiveNetwork();
@@ -116,7 +128,7 @@ public class ConnectionCheck extends AppCompatActivity{
         boolean vpnInUse = caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN);
 
         if(vpnInUse){
-            if(pref.getBoolean(PREF_DEF_URL_ACT, false)){
+            if(devBool && defAct){
                 startActivity(new Intent(this, WebActivity.class));
             }
             else {
@@ -131,7 +143,7 @@ public class ConnectionCheck extends AppCompatActivity{
         }
     }
 
-    private void dia(String ip){
+    private void Dialog(String ip){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("IP: " + ip)
                 .setPositiveButton("EXIT", new DialogInterface.OnClickListener() {
@@ -148,7 +160,7 @@ public class ConnectionCheck extends AppCompatActivity{
 
 
     public void changeBool(View v){
-        boola = !boola;
+        boola = !boola; // Testing purposes only
         startActivity(new Intent(this, SettingsActivity.class));
     }
 }

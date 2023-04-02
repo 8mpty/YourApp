@@ -30,11 +30,11 @@
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name="com.empty.yourapp.SettingsActivity"
+            android:name="com.empty.yourapp.Settings.SettingsActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name="com.empty.yourapp.MainActivity"
+            android:name="com.empty.yourapp.Checkers.LockScreenActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
@@ -42,7 +42,7 @@
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
-            android:name="com.empty.yourapp.LockScreenManager"
+            android:name="com.empty.yourapp.Checkers.LockScreenManager"
             android:configChanges="orientation|screenSize"
             android:exported="true">
             <intent-filter>
@@ -52,13 +52,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.empty.yourapp.ConnectionCheck"
+            android:name="com.empty.yourapp.Checkers.ConnectionCheck"
             android:configChanges="orientation|screenSize"
             android:exported="true">
         </activity>
 
 <!--        <service android:name=".MyService" />-->
-        <service android:name="com.empty.yourapp.AudioService"/>
+        <service android:name="com.empty.yourapp.Services.AudioService"/>
 
     </application>
 

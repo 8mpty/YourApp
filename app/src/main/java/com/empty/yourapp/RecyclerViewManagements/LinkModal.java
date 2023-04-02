@@ -1,4 +1,4 @@
-package com.empty.yourapp;
+package com.empty.yourapp.RecyclerViewManagements;
 
 public class LinkModal {
 
