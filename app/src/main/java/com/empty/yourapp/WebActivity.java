@@ -144,6 +144,7 @@ public class WebActivity extends AppCompatActivity {
         backIc.setOnClickListener(v -> onBackPressed());
 
         pref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+//        pref = getSharedPreferences("shared_pref_str", MODE_PRIVATE);
         editor = pref.edit();
 
         toolbarHide();
@@ -426,7 +427,7 @@ public class WebActivity extends AppCompatActivity {
         {
             if (intent != null && intent.getAction() != null) {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-                    webView.onResume();
+//                    webView.onResume();
                 }
             }
         }
@@ -527,14 +528,6 @@ public class WebActivity extends AppCompatActivity {
             storage.save(settings);
         }
     }
-
-//    BroadcastReceiver onComplete = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            Log.e("FILE", "DONE" );
-//        }
-//    };
-
     private void Mover(String file){
         String sourcePath = Environment.DIRECTORY_DOWNLOADS + "/" + file;
         File source = new File(sourcePath);
@@ -661,9 +654,6 @@ public class WebActivity extends AppCompatActivity {
         // https://stackoverflow.com/questions/21552912/android-web-view-inject-local-javascript-file-to-remote-webpage
         boolean ads = pref.getBoolean(PREF_ADS, true);
 
-        // Remove Sign In Button on YT Music //
-        injectScriptFile(view , "scripts/rm_signIN.js");
-
         if(ads){
             // Remove ALL YT or YT Music Ads using AdGuard //
             injectScriptFile(view , "scripts/adguard_yt.js");
@@ -673,11 +663,7 @@ public class WebActivity extends AppCompatActivity {
             injectScriptFile(view , "scripts/yt_adblocker.js");
         }
 
-        // Full AD Blocker?
-        injectScriptFile(view , "scripts/HugeBlock.js");
 
-        // Bypass Age Restriction Videos On Youtube //
-        injectScriptFile(view , "scripts/agerestricbypass.js");
 
         // Allow Background Playback for YT Music but not Youtube.com
         //  ̶T̶O̶D̶O̶ ̶W̶O̶R̶K̶S̶ ̶S̶O̶M̶E̶T̶I̶M̶E̶S̶ ̶N̶O̶W̶
@@ -685,13 +671,50 @@ public class WebActivity extends AppCompatActivity {
         // injectScriptFile(view , "scripts/bk.js");
         injectScriptFile(view , "scripts/bk_2.js");
 
-        // When did I add this? :(
-        injectScriptFile(view , "scripts/adguard_extra.js");
-
         if(!videoEnabled) {
             injectScriptFile(view , "scripts/videoremover.js");
             videoEnabled = false;
         }
+
+
+        try{
+            if(webView.getUrl().contains("youtube.com")){
+                String[] strings = {
+
+                        // https://github.com/4v3ngR/ytm-wrapped //
+                        "scripts/testscripts/index.js",
+                        "scripts/testscripts/plugins.js",
+
+                        "scripts/testscripts/audioonly.js",
+                        "scripts/testscripts/background.js",
+                        "scripts/testscripts/config.js",
+                        "scripts/testscripts/controls.js",
+                        "scripts/testscripts/mediasession.js",
+                        "scripts/testscripts/swipe.js",
+                        "scripts/testscripts/ui.js",
+
+
+                        // Bypass Age Restriction Videos On Youtube //
+                        "scripts/agerestricbypass.js",
+
+                        // Full AD Blocker? //
+                        "scripts/HugeBlock.js",
+
+                        // Remove Sign In Button on YT Music //
+                        "scripts/rm_signIN.js",
+
+                        // When did I add this? :( //
+                        "scripts/adguard_extra.js",
+                };
+                injectScriptFileArray(view,strings);
+            }
+            else {
+                Log.e("WEBSITE IS NOT", "YOUTUBE");
+            }
+        }catch (Exception e){
+            Log.e("TESTSCRIPTS: ", "NOT LOADED");
+        }
+
     }
 
     // JavaScript Injector
@@ -713,6 +736,33 @@ public class WebActivity extends AppCompatActivity {
                     "script.innerHTML = window.atob('" + encoded + "');" +
                     "parent.appendChild(script)" +
                     "})()");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // JavaScript Injector
+    private void injectScriptFileArray(@NonNull WebView view, String[] scriptFile) {
+        InputStream input;
+        try {
+            for(int i = 0; i < scriptFile.length; i++){
+                input = getAssets().open(scriptFile[i]);
+                byte[] buffer = new byte[input.available()];
+                input.read(buffer);
+                input.close();
+
+                // String-ify the script byte-array using BASE64 encoding !!!
+                String encoded = Base64.encodeToString(buffer, Base64.NO_WRAP);
+                view.loadUrl("javascript:(function() {" +
+                        "var parent = document.getElementsByTagName('head').item(0);" +
+                        "var script = document.createElement('script');" +
+                        "script.type = 'text/javascript';" +
+                        // Tell the browser to BASE64-decode the string into your script !!!
+                        "script.innerHTML = window.atob('" + encoded + "');" +
+//                        "console.error('"+ scriptFile[i] +"');"+
+                        "parent.appendChild(script)" +
+                        "})()");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
