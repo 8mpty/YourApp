@@ -49,6 +49,7 @@ public class LockScreenActivity extends AppCompatActivity {
     public static final String PREF_IPTOG = "pref_IpTog";
     public static final String PREF_VPN = "pref_VpnTog";
     public static final String PREF_BIO = "pref_BIO";
+    public static final String PREF_LOCK = "pref_LOCKSW";
 
     private View keyboardLayout;
 
@@ -377,8 +378,11 @@ public class LockScreenActivity extends AppCompatActivity {
     public void onBackPressed() {
         if(keyboardLayout.getVisibility() == View.VISIBLE){
             keyboardLayout.setVisibility(View.GONE);
-            btnBio.setVisibility(View.VISIBLE);
-            btnBio.setEnabled(true);
+            if(pref.getBoolean(PREF_BIO, false) &&
+                    pref.getBoolean(PREF_LOCK, false)){
+                btnBio.setVisibility(View.VISIBLE);
+                btnBio.setEnabled(true);
+            }
         }
         else {
             super.onBackPressed();

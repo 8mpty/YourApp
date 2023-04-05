@@ -13,7 +13,6 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,7 +20,9 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.emptyapp.R;
 
-public class NewWebView extends WebView {
+import org.adblockplus.libadblockplus.android.webview.AdblockWebView;
+
+public class NewWebView extends AdblockWebView {
     SharedPreferences sp;
     Context context;
 

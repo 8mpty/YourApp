@@ -423,11 +423,10 @@ public class WebActivity extends AppCompatActivity {
 
     private static class LockScreenReceiver extends  BroadcastReceiver {
         @Override
-        public void onReceive(Context context, Intent intent)
-        {
+        public void onReceive(Context context, Intent intent) {
             if (intent != null && intent.getAction() != null) {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-//                    webView.onResume();
+                    webView.onResume();
                 }
             }
         }
@@ -491,22 +490,6 @@ public class WebActivity extends AppCompatActivity {
         webView.setDownloadListener(new DownloadListener() {
             @Override
             public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-//                DownloadManager.Request request = new DownloadManager.Request(Uri.parse((url)));
-//                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-//                String title = URLUtil.guessFileName(url, contentDisposition, mimetype);
-//                request.setMimeType(mimetype);
-//                String cookies = CookieManager.getInstance().getCookie(url);
-//                request.addRequestHeader("coockie", cookies);
-//                request.addRequestHeader("User-Agent", userAgent);
-//                request.setDescription("Downloading File...");
-//                request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
-//                request.allowScanningByMediaScanner();
-//                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-//                String destFolder = Environment.getExternalStorageDirectory().getPath() + "/.EmptyHidden";
-//                request.setDestinationInExternalPublicDir(destFolder, title);
-//                dm.enqueue(request);
-//                registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(url));
                 startActivity(intent);
@@ -519,8 +502,8 @@ public class WebActivity extends AppCompatActivity {
                     .init(this, getFilesDir().getAbsolutePath(), true, AdblockHelper.PREFERENCE_NAME)
                     .getStorage();
             AdblockSettings settings = storage.load();
-            if (settings == null) // not yet saved
-            {
+            // not yet saved
+            if (settings == null) {
                 settings = AdblockSettingsStorage.getDefaultSettings(this);
             }
 
@@ -621,8 +604,7 @@ public class WebActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onPageFinished(WebView view, String url)
-        {
+        public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
 
             urlText.setText(webView.getUrl());
@@ -654,71 +636,58 @@ public class WebActivity extends AppCompatActivity {
         // https://stackoverflow.com/questions/21552912/android-web-view-inject-local-javascript-file-to-remote-webpage
         boolean ads = pref.getBoolean(PREF_ADS, true);
 
-        if(ads){
-            // Remove ALL YT or YT Music Ads using AdGuard //
-            injectScriptFile(view , "scripts/adguard_yt.js");
-        }
-        else {
-            // Remove YT or YT Music Video ads by increasing speed of video ads by 16x (Max). //
-            injectScriptFile(view , "scripts/yt_adblocker.js");
-        }
-
-
-
         // Allow Background Playback for YT Music but not Youtube.com
         //  ̶T̶O̶D̶O̶ ̶W̶O̶R̶K̶S̶ ̶S̶O̶M̶E̶T̶I̶M̶E̶S̶ ̶N̶O̶W̶
         // FIXED? ONLY IN YT MUSIC (LMAO KMS PLZ)
-        // injectScriptFile(view , "scripts/bk.js");
-        injectScriptFile(view , "scripts/bk_2.js");
+         injectScriptFileSingle(view , "scripts/bk.js");
 
         if(!videoEnabled) {
-            injectScriptFile(view , "scripts/videoremover.js");
+            injectScriptFileSingle(view , "scripts/videoremover.js");
             videoEnabled = false;
         }
 
+        if(webView.getUrl().contains("youtube.com")){
+            String[] files = {
+                    // https://github.com/4v3ngR/ytm-wrapped //
 
-        try{
-            if(webView.getUrl().contains("youtube.com")){
-                String[] strings = {
+                    "scripts/testscripts/audioonly.js",
+                    "scripts/testscripts/background.js",
+                    "scripts/testscripts/config.js",
+                    "scripts/testscripts/controls.js",
+                    "scripts/testscripts/mediasession.js",
+                    "scripts/testscripts/swipe.js",
+                    "scripts/testscripts/ui.js",
 
-                        // https://github.com/4v3ngR/ytm-wrapped //
-                        "scripts/testscripts/index.js",
-                        "scripts/testscripts/plugins.js",
+                    // Bypass Age Restriction Videos On Youtube //
+                    "scripts/agerestricbypass.js",
 
-                        "scripts/testscripts/audioonly.js",
-                        "scripts/testscripts/background.js",
-                        "scripts/testscripts/config.js",
-                        "scripts/testscripts/controls.js",
-                        "scripts/testscripts/mediasession.js",
-                        "scripts/testscripts/swipe.js",
-                        "scripts/testscripts/ui.js",
+                    // Full AD Blocker? //
+                    "scripts/HugeBlock.js",
 
+                    // Remove Sign In Button on YT Music //
+                    "scripts/rm_signIN.js",
 
-                        // Bypass Age Restriction Videos On Youtube //
-                        "scripts/agerestricbypass.js",
+                    // When did I add this? :( //
+                    "scripts/adguard_extra.js",
+            };
+            injectScriptFileArray(view,files);
 
-                        // Full AD Blocker? //
-                        "scripts/HugeBlock.js",
-
-                        // Remove Sign In Button on YT Music //
-                        "scripts/rm_signIN.js",
-
-                        // When did I add this? :( //
-                        "scripts/adguard_extra.js",
-                };
-                injectScriptFileArray(view,strings);
+            if(ads){
+                // Remove ALL YT or YT Music Ads using AdGuard //
+                injectScriptFileSingle(view , "scripts/adguard_yt.js");
             }
             else {
-                Log.e("WEBSITE IS NOT", "YOUTUBE");
+                // Remove YT or YT Music Video ads by increasing speed of video ads by 16x (Max). //
+                injectScriptFileSingle(view , "scripts/yt_adblocker.js");
             }
-        }catch (Exception e){
-            Log.e("TESTSCRIPTS: ", "NOT LOADED");
         }
-
+        else {
+            Log.e("WEBSITE IS NOT", "YOUTUBE");
+        }
     }
 
     // JavaScript Injector
-    private void injectScriptFile(@NonNull WebView view, String scriptFile) {
+    private void injectScriptFileSingle(@NonNull WebView view, String scriptFile) {
         InputStream input;
         try {
             input = getAssets().open(scriptFile);
@@ -759,7 +728,7 @@ public class WebActivity extends AppCompatActivity {
                         "script.type = 'text/javascript';" +
                         // Tell the browser to BASE64-decode the string into your script !!!
                         "script.innerHTML = window.atob('" + encoded + "');" +
-//                        "console.error('"+ scriptFile[i] +"');"+
+                        // "console.error('"+ scriptFile[i] +"');"+
                         "parent.appendChild(script)" +
                         "})()");
             }
@@ -927,16 +896,14 @@ public class WebActivity extends AppCompatActivity {
 
     public void startService(){
 
-//        Intent serviceIntent = new Intent(this, AudioService.class);
-//        serviceIntent.putExtra("inputExtra", "webView.getUrl()");
-//        startForegroundService(serviceIntent);
-
-        Intent intent = new Intent(this, AudioService.class);
-        startForegroundService(intent);
+        Intent serviceIntent = new Intent(this, AudioService.class);
+        serviceIntent.putExtra("inputWebName", webView.getTitle());
+//        serviceIntent.putExtra("inputWebLink", webView.getUrl());
+        startForegroundService(serviceIntent);
     }
     public void stopService() {
-        Intent serviceIntent = new Intent(this, AudioService.class);
-        stopService(serviceIntent);
+        Intent intent = new Intent(this, AudioService.class);
+        stopService(intent);
     }
     private void SaveUAData() {
         editor.putString(PREF_UA, ua);
@@ -1000,14 +967,16 @@ public class WebActivity extends AppCompatActivity {
             stopService();
         }
 
-        webView.loadUrl("javascript: (function() { document.getElementsByTagName('video')[0].play();})()");
+        webView.loadUrl("javascript: (function() { " +
+                "document.getElementsByTagName('video')[0].play();" +
+                "})()");
+
         webView.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        //startService(new Intent(WebActivity.this, AudioService.class));
         if(pref.getBoolean(PREF_SERVICE, false) &&
                 pref.getBoolean("pref_DEV",false)){
             Log.e("CALLED","SERVICE PAUSE");

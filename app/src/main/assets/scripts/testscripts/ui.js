@@ -124,6 +124,8 @@
           top: 130px;
           display: flex !important;
           padding-left: 40%;
+          justify-content: space-evenly;
+          align-items: center;
         }
 
 

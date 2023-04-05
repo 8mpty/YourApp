@@ -23,23 +23,27 @@ public class AudioService extends Service {
         createNotiChannel();
         String message = "TEST";
         Intent notiIntent = new Intent(this, WebActivity.class);
+//        notiIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notiIntent, PendingIntent.FLAG_MUTABLE);
+                0, notiIntent, PendingIntent.FLAG_MUTABLE  |
+                        PendingIntent.FLAG_NO_CREATE);
+
+
 
         Intent testIntent = new Intent(this, AudioService.class);
         testIntent.putExtra("toastMessage", message);
-        PendingIntent playIntent = PendingIntent.getBroadcast(
-                this, 0, testIntent, PendingIntent.FLAG_MUTABLE);
+        PendingIntent playIntent = null;
 
-
-        String input = intent.getStringExtra("inputExtra");
+        String webname = intent.getStringExtra("inputWebName");
+        String webLink = intent.getStringExtra("inputWebLink");
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Audio Service")
-                .setContentText(input)
-                .setSmallIcon(R.drawable.ic_globe)
+                .setContentTitle(webname)
+                .setContentText(webLink)
+                .setSmallIcon(R.drawable.icon_audio)
                 .setContentIntent(pendingIntent)
-                .addAction(R.mipmap.ic_launcher, "Play", playIntent)
-                .addAction(R.mipmap.ic_launcher, "Pause", playIntent)
+                //.addAction(R.mipmap.ic_launcher, "Play", null)
+                //.addAction(R.mipmap.ic_launcher, "Pause", null)
                 .build();
         startForeground(1, notification);
 
@@ -54,6 +58,8 @@ public class AudioService extends Service {
                     "ExampleSerivceChannel",
                     NotificationManager.IMPORTANCE_DEFAULT
             );
+
+            serviceChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(serviceChannel);
@@ -70,7 +76,6 @@ public class AudioService extends Service {
         super.onDestroy();
         stopForeground(true);
         stopSelf();
-        System.exit(0);
     }
 
     @Override
